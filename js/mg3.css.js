@@ -36,6 +36,7 @@ mg3.css = (function() {
     id: {
       canvas_id_xy     : 'mgx-xy',
       canvas_id_fps    : 'mgx-fps',
+      mainmenu         : 'mgu-mainmenu',
       joystick_dir     : 'mg-joystick-dir',
       joystick_point   : 'mg-joystick-aim',
       hud_main         : 'mg-hud-main',
@@ -138,6 +139,9 @@ mg3.css = (function() {
       left     : 0%;
       bottom   : 0%;
     }
+    .flexbox {
+      display  : flex;
+    }
     .text-center {
       text-align: center;
     }
@@ -169,7 +173,7 @@ mg3.css = (function() {
     ` 
     /* Core Elements */
     #${settings.id.canvas_id_fps} {
-      right: 13px;
+      right: calc(1.1vmin + 8ch + 0.5vmin + 1.3ch);
       top  : 13px;
     }
     #mg-main, #mg-submain {
@@ -178,6 +182,11 @@ mg3.css = (function() {
       top     : 0%;
       height  : 100%;
       width   : 100%;
+    }
+
+    /* Main Menu */
+    #${settings.id.mainmenu} {
+      
     }
     
     /* Canvas */
@@ -203,7 +212,8 @@ mg3.css = (function() {
       white-space   : pre-wrap;
     }
     #${settings.id.canvas_id_xy}-X-value,
-    #${settings.id.canvas_id_xy}-Y-value {
+    #${settings.id.canvas_id_xy}-Y-value,
+    #${settings.id.canvas_id_xy}-Z-value {
       right    : calc(0% + 1.5ch);
     }
     

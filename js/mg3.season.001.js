@@ -115,7 +115,7 @@ mg3.season_001 = (function(){
   UNITS[`thalendir`] = new Unit({
     key: `thalendir`,
     uri: `thalendir_the_horned_sentinel`,
-    scale: 125,
+    scale: 166,
     animationKeys: {
       idle : `001_idle_naginata`,
       walk : `001_run`,
@@ -141,7 +141,7 @@ mg3.season_001 = (function(){
   UNITS[`bearsnake`] = new Unit({
     key: `bearsnake`,
     uri: `lizard_head`,
-    scale: 2.4,
+    scale: 2.8,
     animationKeys: {
       idle : `001_idle_oneweapon_twoweapons`,
       walk : `001_flying`,

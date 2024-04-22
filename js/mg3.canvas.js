@@ -4,6 +4,7 @@ mg3.canvas = (function() {
   /* Meta Variables */
   let qset       = mg3.utilities.qselect
   let raiseEvent = mg3.utilities.raiseEvent
+  let uuid       = mg3.utilities.uuid
   let season     = mg3.season_001
   let inject     = function(str, tar) { var t = tar ? tar : body; t.insertAdjacentHTML('beforeend', str) }
 
@@ -20,6 +21,11 @@ mg3.canvas = (function() {
         rangeLowerProximity : 5,
         rangeHigherProximity: 135,
         startPosition       : new BABYLON.Vector3( -1.73, 2.37, 4.97 ),
+
+        alpha  : 5.61*Math.PI/4,
+        beta   : 1.11*Math.PI/4,
+        radius : 3*5,
+        startPosition       : new BABYLON.Vector3( -2.2, 10.1, -5.7 ),
 
         upperBetaLimit: Math.PI / 2.2,
         lowerBetaLimit: Math.PI / (Math.PI * 1.7),
@@ -64,7 +70,7 @@ mg3.canvas = (function() {
   }
 
   /* In-memory variables */
-  let body, canvas, engine, scene;
+  let body, canvas, camera, engine, scene, units = {};
 
   /* Computational variables */
 
@@ -156,7 +162,10 @@ mg3.canvas = (function() {
     
     // add event listeners
     window.addEventListener('resize', function() { engine.resize() })
-    canvas.addEventListener( events.internal.canvas_tick, stageTick  )
+    canvas.addEventListener( events.internal.canvas_tick, function() {
+      stageTick()
+      raiseEvent( main, events.outgoing.tick, {camera: camera} )
+    })
     
     // run defaultScene
     scene = await defaultScene()
@@ -208,7 +217,7 @@ mg3.canvas = (function() {
         cam.sy     = options?.cameraSensibilityY    || c.sensibilityY
         cam.sp     = options?.cameraStartPosition   || c.startPosition
 
-    let camera = new BABYLON.ArcRotateCamera('viewport', cam.alpha, cam.beta, cam.radius, cam.target)
+    camera = new BABYLON.ArcRotateCamera('viewport', cam.alpha, cam.beta, cam.radius, cam.target)
     
     // Attach camera to canvas
     camera.attachControl( canvas, true, false, 0 )
@@ -231,7 +240,7 @@ mg3.canvas = (function() {
     camera.angularSensibilityX = cam.sx
     camera.angularSensibilityY = cam.sy
     // Set starting position
-    camera.position = cam.sp
+    // camera.position = cam.sp
 
     // All Light options
     let lightIntensity = options?.lightIntensity || 1
@@ -279,13 +288,7 @@ mg3.canvas = (function() {
     // Shadow generator
     shadowGenerator = new BABYLON.ShadowGenerator(1024, dirlight);
 
-    var axes = new BABYLON.AxesViewer(scene, 5)
-        
-    if (false) {
-      engine.runRenderLoop(function() {
-        camera.alpha += 0.001
-      })
-    }
+    var axes = new BABYLON.AxesViewer(scene, 1)
     
     return scene
   }
@@ -297,6 +300,7 @@ mg3.canvas = (function() {
     
     if (payload?.scale) unit.scaleTo( payload?.scale )
     if (payload?.position) unit.moveTo( payload?.position.x, payload?.position.y )
+    if (payload?.rotation) unit.rotateTo( payload?.rotation )
     
     unit.AnimateIdle()
   }
@@ -307,6 +311,7 @@ mg3.canvas = (function() {
         this[k] = v
         if (k === 'meshes') this.actual = v[0]
       })
+      this.uuid = uuid()
       // animation data
       this.animation = null
       this.anim = {}
@@ -317,6 +322,20 @@ mg3.canvas = (function() {
       // meta information
       this.meta = {}
       this.meta.scale = 1
+
+      this.showAxes()
+
+      // save it to the module
+      units[this.uuid] = this
+    }
+    // Helper Tools
+    showAxes() {
+      if (this?.axes) this.axes.dispose()
+      // add a little axes
+      this.axes = new BABYLON.AxesViewer(scene, 1/this.meta.scale)
+      this.axes.xAxis.parent = this.actual
+      this.axes.yAxis.parent = this.actual
+      this.axes.zAxis.parent = this.actual
     }
     // Geo Controllers
     moveTo(x, y, z = 0) {
@@ -325,12 +344,20 @@ mg3.canvas = (function() {
     scaleTo(scale) {
       this.meta.scale = scale
       this.actual.scaling.scaleInPlace( this.meta.scale )
+      this.showAxes()
+    }
+    rotateTo(degrees) {
+      this.actual.rotate(BABYLON.Axis.Y, degrees, BABYLON.Space.LOCAL)
+    }
+    rotateBy(degrees) {
+
     }
     // Animation Controllers
     AnimateStop() {
       if (this.animation) this.animation.stop(); this.animation = null;
     }
     AnimateSpecific(animation) {
+      this.AnimateStop()
       let g = this.animationGroups
       let f = g.filter(a => a.name == animation)
       if (f.length) {
@@ -354,5 +381,12 @@ mg3.canvas = (function() {
     setup       : setup,
     defaultScene: defaultScene, 
     loadModel   : loadModel,
+
+    canvas      : function() { return canvas },
+    camera      : function() { return camera },
+    scene       : function() { return scene  },
+    units       : function() { return units  },
+ 
+    fps         : anim.rates,
   }
 })()

@@ -16,7 +16,9 @@ mg3.ux = (function() {
     
     },
     mainmenu: {
-      
+      id_mainmenu : 'mgu-mainmenu',
+      id_list     : 'mgu-mainmenu-list',
+      list_element: 'mgu-listElement',
     },
     canvas  : {
       show_xy   : 'mgx-show-xy',
@@ -109,7 +111,8 @@ mg3.ux = (function() {
     listen()
     
     // SIMULATE: request a game level + canvas -> change this to a menu UI when desiring control
-    setTimeout(requestStage, 1000)
+    mainMenu()
+    // setTimeout(requestStage, 1000)
     // setTimeout(endStage, 8000)
   }
   
@@ -125,8 +128,15 @@ mg3.ux = (function() {
 
   let mainMenu = function() {
     inject(`
-      
-    `)
+      <div id="${settings.mainmenu.id_mainmenu}" class="absolute fullscreen center">
+        <div id="${settings.mainmenu.id_list}" class="absolute center flexbox">
+          <div class="${settings.mainmenu.list_element}" id="">New Game</div>
+          <div class="${settings.mainmenu.list_element} disabled" id="">Continue Game</div>
+          <div class="${settings.mainmenu.list_element}" id="">Settings</div>
+          <div class="${settings.mainmenu.list_element}" id="">Quit</div>
+        </div>
+      </div>
+    `, submain)
   }
   
   let swapState = function() {
@@ -134,21 +144,27 @@ mg3.ux = (function() {
   }
   
   let canvasTick = function(e) {
-    let data = e.detail.data
-    let hero = data.hero
+    // let data = e.detail.data
+    // let hero = data.hero
     
     // show FPS
-    hudFPS.innerHTML = mg?.canvas?.fps().toFixed(1)
+    hudFPS.innerHTML = mg3?.canvas?.fps().toFixed(1)
     // hudFPS.innerHTML = hero.a.key + ',' + hero.a.cardinal
     
-    updateCoordinates(hero)
-    updateSector(hero)
-    updateThrust(hero)
+    updateStageXY(e)
+
+    // updateCoordinates(hero)
+    // updateSector(hero)
+    // updateThrust(hero)
   }
   
   let updateStageXY = function(e) {
-    showX.innerHTML = (e.detail[0].toFixed(1)).toString().padStart(6,' ')
-    showY.innerHTML = (e.detail[1].toFixed(1)).toString().padStart(6,' ')
+    let c = e.detail.camera
+
+    showX.innerHTML = (c.position.x.toFixed(1)).toString().padStart(6,' ')
+    showY.innerHTML = (c.position.y.toFixed(1)).toString().padStart(6,' ')
+    showZ.innerHTML = (c.position.z.toFixed(1)).toString().padStart(6,' ')
+hudFPS.innerHTML = c.alpha + ',' + c.beta + ',' + c.radius
   }
   
   let updateCoordinates = function(hero) {
@@ -180,6 +196,7 @@ mg3.ux = (function() {
      <div id="${settings.canvas.id_xy}" class="absolute top-right">
        <div id="${settings.canvas.id_xy}-X" class="hidden relative"><div id="${settings.canvas.id_xy}-X-label">X</div><div id="${settings.canvas.id_xy}-X-value" class="absolute right text-right"></div></div>
        <div id="${settings.canvas.id_xy}-Y" class="hidden relative"><div id="${settings.canvas.id_xy}-Y-label">Y</div><div id="${settings.canvas.id_xy}-Y-value" class="absolute right text-right"></div></div>
+       <div id="${settings.canvas.id_xy}-Z" class="hidden relative"><div id="${settings.canvas.id_xy}-Z-label">Z</div><div id="${settings.canvas.id_xy}-Z-value" class="absolute right text-right"></div></div>
      </div>
      <div id="${settings.canvas.id_fps}" class="absolute top-right"><div class="value syne-mono text-grey"></div></div>
      <!-- HUD Coordinates -->
