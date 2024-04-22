@@ -3,8 +3,13 @@
  <link rel="manifest" href="manifest.json" />
  <!-- https://github.com/bobboteck/JoyStick -->
  <script src="js/joy.min.js"></script>
+ <!-- runeworks -->
+ <script src="js/rw-splash.js"></script>
+ <script src="js/rw-multisplash.js"></script>
+ <!-- babylon -->
  <script src="js/babylon.js"></script>
  <script src="js/babylonjs.loaders.min.js"></script>
+ <!-- mg3 -->
  <script src="js/mg3.comptroller.js" class="mg-script"></script>
  <style>
     html, body {
@@ -19,14 +24,58 @@
 <body></body>
 <script>
 document.addEventListener("DOMContentLoaded", async function(event) {
-  
+
+  /*  
+  let me = 'user'
+  let loaders = [
+    {user: me, progress: 0},
+  ]
+
+  let gm = runeworks.multisplash
+
+  let r = gm.start([me])
+      r.next()
+
+  let timer = setInterval(function() {
+    let input = {}
+    loaders.forEach(loader => {
+      let n  = Math.floor(Math.random() * 8)
+          n += loader.progress
+          n  = Math.min(100, n)
+      loader.progress = n
+      input[loader.user] = n
+    })
+
+    let m = gm.update(input)
+    if (!m) {
+      clearInterval(timer)
+      r.next()
+    }
+  }, 1000 )
+  */
+
+
+  let rws = runeworks.splash.start({
+    fadeOutDelay: 2400,
+  })
+  rws.next()
+  // Your intermediate code here
+
+  rws.next()
+  // Continue here
+
+
   mg3.comptroller.init()
   
   setTimeout(() => {
-    Object.entries(mg3.season_001.UNITS).forEach(([key,unit],i) => {
-      // console.log(unit)
-      mg3.canvas.loadModel(`assets/${unit.uri}/scene.gltf`, {animationKeys: unit.animationKeys, scale: unit.scale, position: {x: i * 3 - 5, y: 0}} )
+    let k = mg3.season_001.UNITS['sentinel']
+    mg3.canvas.loadModel(`assets/${k.uri}/scene.gltf`,
+    {
+      animationKeys: k.animationKeys, 
+      scale        : k.scale, 
+      position     : { x: 0, y: 10 },
+      rotation     : Math.PI,
     })
-  }, 2100)
+  }, 1500)
 })
 </script>
