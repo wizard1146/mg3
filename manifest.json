@@ -1,6 +1,6 @@
 {
-  "short_name": "Gambit",
-  "name": "Gambit",
+  "short_name": "MG3",
+  "name": "MG3",
   "icons": [
     {
       "src": "assets/icon-192.png",
@@ -13,13 +13,13 @@
       "sizes": "512x512"
     }
   ],
-  "id": "/mg?source=pwa",
-  "start_url": "/mg?source=pwa",
+  "id": "/mg3?source=pwa",
+  "start_url": "/mg3?source=pwa",
   "background_color": "#0D1835",
   "display": "fullscreen",
-  "scope": "/mg",
+  "scope": "/mg3",
   "theme_color": "#0D1835",
   "shortcuts": [
   ],
-  "description": "PWA for Gambit"
+  "description": "PWA for MG3"
 }
