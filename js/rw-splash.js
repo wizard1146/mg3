@@ -32,7 +32,7 @@ runeworks.splash = (function() {
     },
   }
 
-  let splashDelay       = 4600
+  let splashDelay       = 3600
   let fadeOutDelay      = 1450
   let displayCaret      = false
   let typeSpeed         = 56

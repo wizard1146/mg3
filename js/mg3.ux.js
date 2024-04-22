@@ -65,6 +65,7 @@ mg3.ux = (function() {
       state_transition : 'mgu-transition',
       container_wipe   : 'mgu-wipe',
       container_subwipe: 'mgu-subwipe',
+      request_stage    : 'mgu-request-stage',
     },
     outgoing: {
       injected_main    : `mgu-injected-main`,
@@ -122,6 +123,9 @@ mg3.ux = (function() {
     
     main.addEventListener( events.incoming.stage_move, updateStageXY )
     
+    // Listen for Stage Request
+    main.addEventListener( events.internal.request_stage, requestStage )
+    
     // Listen for Canvas Tick
     main.addEventListener( events.incoming.canvas_tick, canvasTick )
   }
@@ -129,11 +133,11 @@ mg3.ux = (function() {
   let mainMenu = function() {
     inject(`
       <div id="${settings.mainmenu.id_mainmenu}" class="absolute fullscreen center">
-        <div id="${settings.mainmenu.id_list}" class="absolute center flexbox">
-          <div class="${settings.mainmenu.list_element}" id="">New Game</div>
-          <div class="${settings.mainmenu.list_element} disabled" id="">Continue Game</div>
-          <div class="${settings.mainmenu.list_element}" id="">Settings</div>
-          <div class="${settings.mainmenu.list_element}" id="">Quit</div>
+        <div id="${settings.mainmenu.id_list}" class="absolute center flexbox syne-mono text-bright text-accent text-right no-select cursor">
+          <div class="${settings.mainmenu.list_element}" id="" onclick="mg3.utilities.raiseEvent(document.querySelector('#${settings.app.id_tray}'), '${events.internal.request_stage}')"><div class="backdrop"></div><div class="value">New Game</div></div>
+          <div class="${settings.mainmenu.list_element} disabled" id=""><div class="backdrop"></div><div class="value">Continue Game</div></div>
+          <div class="${settings.mainmenu.list_element}" id=""><div class="backdrop"></div><div class="value">Settings</div></div>
+          <div class="${settings.mainmenu.list_element}" id=""><div class="backdrop"></div><div class="value">Quit</div></div>
         </div>
       </div>
     `, submain)
@@ -228,6 +232,15 @@ hudFPS.innerHTML = c.alpha + ',' + c.beta + ',' + c.radius
     hud_y    = qset(`#${settings.hud.id_y}`)
     hud_y.style.bottom = js_dir.clientHeight
     hud_x.style.setProperty('left', `calc(${js_dir.clientWidth}px - ${hud_x.clientWidth}px)`)
+    
+    let k = mg3.season_001.UNITS['sentinel']
+    mg3.canvas.loadModel(`assets/${k.uri}/scene.gltf`,
+    {
+      animationKeys: k.animationKeys, 
+      scale        : k.scale, 
+      position     : { x: 0, y: 10 },
+      rotation     : Math.PI,
+    })
   }
   
   let endStage = function() {

@@ -37,6 +37,8 @@ mg3.css = (function() {
       canvas_id_xy     : 'mgx-xy',
       canvas_id_fps    : 'mgx-fps',
       mainmenu         : 'mgu-mainmenu',
+      mainmenu_list    : 'mgu-mainmenu-list',
+      mainmenu_list_class: 'mgu-listElement',
       joystick_dir     : 'mg-joystick-dir',
       joystick_point   : 'mg-joystick-aim',
       hud_main         : 'mg-hud-main',
@@ -45,6 +47,18 @@ mg3.css = (function() {
       hud_sector       : 'mg-hud-sector',
       hud_coords_class : 'mg-hud-class-coords',
     },
+    mainmenu: {
+      background: `assets/splash_002.png`,
+      height    : `70%`,
+      width     : `23ch`,
+      offset    : `3ch`,
+      fsize     : `17pt`,
+      // elements
+      margin    : `0.4ch`,
+      padding   : `1.3ch`,
+      backing   : `rgba( 255, 255, 255, 0.03 )`,
+      backingHover: `rgba( 255, 255, 255, 0.08 )`
+    }
   }
   let events = {
     incoming: {
@@ -148,6 +162,12 @@ mg3.css = (function() {
     .text-right {
       text-align: right;
     }
+    .no-select {
+      user-select: none;
+    }
+    .cursor {
+      cursor: pointer;
+    }
     .no-pointer {
       pointer-events: none;
     }
@@ -165,6 +185,14 @@ mg3.css = (function() {
     }
     .text-grey {
       color   : rgba( 141, 141, 189, 0.65 );
+    }
+    .text-bright {
+      color   : rgba( 184, 184, 203, 0.78 );
+    }
+    .text-accent {
+      text-shadow:
+        1px -1px 0 rgba( 44, 44, 44, 0.83 ),
+        1px  1px 0 rgba( 14, 14, 14, 0.93 );  
     }
     .backdrop-blur {
       backdrop-filter: blur(6px);
@@ -186,7 +214,47 @@ mg3.css = (function() {
 
     /* Main Menu */
     #${settings.id.mainmenu} {
-      
+      background-image: url(${settings.mainmenu.background});
+      background-size : cover;
+    }
+    #${settings.id.mainmenu_list} {
+      width           : calc(${settings.mainmenu.width} - ${settings.mainmenu.offset});
+      height          : ${settings.mainmenu.height};
+      padding-right   : ${settings.mainmenu.offset};
+      padding-left    : ${settings.mainmenu.offset};
+      justify-content : center;
+      flex-direction  : column;
+      font-size       : ${settings.mainmenu.fsize};
+    }
+    .${settings.id.mainmenu_list_class} {
+      padding         : ${settings.mainmenu.padding};
+      margin          : ${settings.mainmenu.margin};
+      background      : ${settings.mainmenu.backing};
+      border-radius   : 9px;
+      position        : relative;
+      overflow  : hidden;
+      transition: all 230ms;
+    }
+    .${settings.id.mainmenu_list_class} .value {
+      position: relative;
+    }
+    .${settings.id.mainmenu_list_class} .backdrop {
+      position : absolute;
+      overflow : hidden;
+      width    : 100%;
+      height   : 100%;
+      left     : 0%;
+      top      : 0%;
+      backdrop-filter: blur(6px);
+    }
+    .${settings.id.mainmenu_list_class}:hover {
+      background      : ${settings.mainmenu.backingHover};
+    }
+    .${settings.id.mainmenu_list_class}:hover .value {
+      color   : rgba( 231, 184, 203, 0.78 );
+    }
+    .${settings.id.mainmenu_list_class}:hover .backdrop {
+      backdrop-filter: blur(11px);
     }
     
     /* Canvas */
