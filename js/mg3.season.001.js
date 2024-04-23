@@ -13,7 +13,9 @@ mg3.season_001 = (function(){
   LEVELS[`001`] = new Level({
     enemies: [
       {model: 'hiro', pos: {x: 0, y: 0}},
-    ]
+    ],
+    map: [],
+    terrain: [],
   })
   
   // Level 2
@@ -217,6 +219,17 @@ mg3.season_001 = (function(){
     animationKeys: {
       idle : `002_idle_twoweapons`,
       walk : `003_run_weaponshield`,
+    },
+  })
+
+ // HRM
+  UNITS[`ethnic`] = new Unit({
+    key: `ethnic`,
+    uri: `ethnic_hero`,
+    scale: 1.22,
+    animationKeys: {
+      idle : `001_idle_whip_samurai_f`,
+      walk : `001_run_samurai_f`,
     },
   })
   

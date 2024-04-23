@@ -12,15 +12,17 @@ mg3.canvas = (function() {
   let settings = {
     defaults: {
       camera: {
+/*
         alpha  : -Math.PI / 2,
         beta   :  Math.PI / 2.5,
         radius : 10,
+        startPosition       : new BABYLON.Vector3( -1.73, 2.37, 4.97 ),
+ */
         target : new BABYLON.Vector3( 0, 1, 0 ),
 
         wheelPrecision      : 11,
         rangeLowerProximity : 5,
         rangeHigherProximity: 135,
-        startPosition       : new BABYLON.Vector3( -1.73, 2.37, 4.97 ),
 
         alpha  : 5.61*Math.PI/4,
         beta   : 1.11*Math.PI/4,
@@ -55,6 +57,7 @@ mg3.canvas = (function() {
       stage_start      : 'mgu-stage-start',
       state_change     : 'mgu-state-change',
       stage_kill       : `mgu_stage_kill`,
+      loadModel: `mge-outgoing-load-model`,
     },
     internal: {
       setupReady       : 'mgb-ready',
@@ -70,7 +73,7 @@ mg3.canvas = (function() {
   }
 
   /* In-memory variables */
-  let body, canvas, camera, engine, scene, units = {};
+  let body, canvas, camera, engine, scene, units = {}, player;
 
   /* Computational variables */
 
@@ -140,7 +143,7 @@ mg3.canvas = (function() {
     inject(c, submain)
     
     canvas = qset(`#${settings.canvas.id}`)
-    
+    canvas.addEventListener( events.incoming.loadModel, loadModel )
 
     var wi = window.innerWidth
     var he = window.innerHeight
@@ -181,6 +184,21 @@ mg3.canvas = (function() {
   }
   
   let stageTick = function() {
+    // get updated data
+    let data = mg3.engine.data()
+    let hero = data.hero
+
+    // move the models
+    if (player && hero.a) {
+      // move
+      player.moveTo( -hero.x / 144, hero.y / 144 )
+      // animate
+      if (player.anim.current !== hero.a.key) {
+        player.AnimateSpecific( hero.a.key )
+      }
+    }
+
+    // render scene
     scene.render()
   }
   
@@ -188,13 +206,14 @@ mg3.canvas = (function() {
     // generate scene
     let scene = await createScene()
     // animate
+ /*
     if (false) {
     
     engine.runRenderLoop(function() {
       scene.render()
     })
     }
-    
+   */ 
     // handler
     return scene
   }
@@ -293,7 +312,7 @@ mg3.canvas = (function() {
     return scene
   }
 
-  let loadModel = async function(uri, payload) {
+  let loadModel = async function(uri, payload, isPlayer) {
     let obj = await BABYLON.SceneLoader.ImportMeshAsync('', uri, '', scene)
         
     let unit = new UnitModel(obj, payload)
@@ -303,6 +322,12 @@ mg3.canvas = (function() {
     if (payload?.rotation) unit.rotateTo( payload?.rotation )
     
     unit.AnimateIdle()
+
+    // save the model 
+    units[unit.uuid] = unit
+    if (isPlayer) {
+      player = unit
+    }
   }
   
   class UnitModel {

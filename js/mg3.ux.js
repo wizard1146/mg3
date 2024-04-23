@@ -233,6 +233,7 @@ hudFPS.innerHTML = c.alpha + ',' + c.beta + ',' + c.radius
     hud_y.style.bottom = js_dir.clientHeight
     hud_x.style.setProperty('left', `calc(${js_dir.clientWidth}px - ${hud_x.clientWidth}px)`)
     
+/*
     let k = mg3.season_001.UNITS['sentinel']
     mg3.canvas.loadModel(`assets/${k.uri}/scene.gltf`,
     {
@@ -241,6 +242,14 @@ hudFPS.innerHTML = c.alpha + ',' + c.beta + ',' + c.radius
       position     : { x: 0, y: 10 },
       rotation     : Math.PI,
     })
+    let f = mg3.season_001.UNITS['sentinel']
+    mg3.canvas.loadModel(`assets/${f.uri}/scene.gltf`,
+    {
+      animationKeys: f.animationKeys, 
+      scale        : f.scale, 
+      position     : { x: 0, y: 0 },
+    }, true)
+*/
   }
   
   let endStage = function() {

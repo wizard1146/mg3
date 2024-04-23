@@ -29,7 +29,9 @@ mg3.comptroller = (function() {
       'db',
       'season.001',
       'canvas',
+      'engine',
       'ux',
+      'input',
     ],
   }
   
