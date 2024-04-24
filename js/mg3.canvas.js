@@ -19,6 +19,7 @@ mg3.canvas = (function() {
   /* In-memory variables */
   let body, main, submain, mmenu;
   let canvas, engine, scene, units = {}, player;
+  let camera, eye;
 
   /* Computational variables */
 
@@ -290,6 +291,7 @@ mg3.canvas = (function() {
   return {
     canvas      : function() { return canvas },
     camera      : function() { return camera },
+    eye         : function() { return eye    },
     scene       : function() { return scene  },
     units       : function() { return units  },
   }
