@@ -77,6 +77,8 @@ mg3.settings = (function() {
       panningAxis   : new BABYLON.Vector3(1.1,0,-1.6),
       sensibilityX  : 2000,
       sensibilityY  : 2000,
+      // Follow Camera
+      id_eye      : `follow-camera`,
     },
     hud: {
       // IDs

@@ -184,6 +184,7 @@ mg3.engine = (function() {
         unit.x = datum?.pos?.x || unit.x
         unit.y = datum?.pos?.y || unit.y
         unit.r = datum?.pos?.r || unit.r
+        unit.isPlayer = isPlayer
     
     raiseEvent( canvas, events.engine.unit, unit )
     
