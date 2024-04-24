@@ -214,6 +214,8 @@ mg3.canvas = (function() {
       // Canvas sizing
       var wi = window.innerWidth
       var he = window.innerHeight
+      canvas.style.width = wi + 'px'
+      canvas.style.height= he + 'px'
       canvas.width  = wi
       canvas.height = he
       // Engine

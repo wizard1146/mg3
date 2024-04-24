@@ -246,6 +246,7 @@ mg3.css = (function() {
     #${s_app.id_mmenu_sets} .value {
       width          : ${s_mmenu.modal_settings_width};
       height         : ${s_mmenu.modal_settings_height};
+      max-height     : 100%;
     }
     #${s_app.id_mmenu_quit} .backing,
     #${s_app.id_mmenu_quit} .value {
