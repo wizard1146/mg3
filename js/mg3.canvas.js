@@ -13,44 +13,6 @@ mg3.canvas = (function() {
   
   /* Settings */
   let settings   = mg3.settings.get()
-  
-  /*
-  let settings = {
-    defaults: {
-      camera: {
-        alpha  : -Math.PI / 2,
-        beta   :  Math.PI / 2.5,
-        radius : 10,
-        startPosition       : new BABYLON.Vector3( -1.73, 2.37, 4.97 ),
-        target : new BABYLON.Vector3( 0, 1, 0 ),
-
-        wheelPrecision      : 11,
-        rangeLowerProximity : 5,
-        rangeHigherProximity: 135,
-
-        alpha  : 5.61*Math.PI/4,
-        beta   : 1.11*Math.PI/4,
-        radius : 3*5,
-        startPosition       : new BABYLON.Vector3( -2.2, 10.1, -5.7 ),
-
-        upperBetaLimit: Math.PI / 2.2,
-        lowerBetaLimit: Math.PI / (Math.PI * 1.7),
-        panningAxis   : new BABYLON.Vector3(1.1,0,-1.6),
-        sensibilityX  : 2000,
-        sensibilityY  : 2000,
-      },
-    },
-    dpi     : 192, // 192, 288
-    fps     : 120,
-    app     : {
-      id_tray   : 'mg-main',
-      id_subtray: 'mg-submain',
-    },
-    canvas  : {
-      id    : 'mg-canvas',
-    },
-  }
-  */
 
   /* Events */
 
@@ -163,7 +125,7 @@ mg3.canvas = (function() {
         this[k] = v
         if (k === 'meshes') this.actual = v[0]
       })
-      this.uuid = uuid()
+      this.uuid = payload?.id ? payload?.id : uuid()
       // animation data
       this.animation = null
       this.anim = {}
@@ -281,7 +243,20 @@ mg3.canvas = (function() {
   
   let tick = function() {
     // update scene
-    
+    let data  = mg3.engine.data()
+    let hero  = data.hero
+    let rest  = data.units
+
+    if (hero) {
+      // move the hero first
+      units[hero.id]?.moveTo( hero.x, hero.y )
+    }
+    if (rest && rest.length) {
+      rest.forEach(unit => {
+        units[unit.id]?.moveTo( unit.x, unit.y )
+      })
+    }
+ 
     // render scene  
     scene.render()
   }
@@ -289,9 +264,9 @@ mg3.canvas = (function() {
   let loadModel = async function(e) {
     let datum = e.detail
     let uri   = `assets/${datum.meta.uri}/scene.gltf`
-    
+
     let obj = await BABYLON.SceneLoader.ImportMeshAsync('', uri, '', scene)
-    let unit = new UnitModel(obj, {animationKeys: datum.meta.animationKeys})
+    let unit = new UnitModel(obj, {id: datum.id, animationKeys: datum.meta.animationKeys})
     
     if (datum?.meta?.scale) unit.scaleTo( datum?.meta?.scale )
     if (typeof datum?.x != 'undefined' && typeof datum?.y != 'undefined') unit.moveTo( datum?.x, datum?.y )

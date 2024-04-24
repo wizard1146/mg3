@@ -20,91 +20,19 @@ mg3.engine = (function() {
   let event_initialise = events.preloader.initial
   
   /* Module Settings & Events */
-  let settings = {
-    app     : {
-      id_tray   : 'mg-main',
-      id_subtray: 'mg-submain',
-      id_canvas : 'mg-canvas',
-    },
-    game    : {
-      size_unit    : 25,
-      sizpu_sector : 40,
+  let settings   = mg3.settings.get()
 
-      speed_limiter: 20.4,
-      speed_max    : 100,
-    
-      size_quadrant: 30000,
-      size_sector  :   500,
-      count_sector :     5,
-      count_stars  :   898,
-      
-      initial_x    : 0,
-      initial_y    : 0,
-    }
-  }
   /* Memory */
   let body, main, submain, mmenu, canvas;
   let levelData, splash, splasher;
   // Main data output
   let data = {
     hero    : {},
-    sectors : {},
-    limits  : {},
+    units   : {},
     settings: {},
   }
   /* Computational variables */
-  let collider;
 
-
-  /* Initialise */
-  let initialise = function() {
-    body = qset('body')
-
-    body.addEventListener( events.incoming.injected_main, function() { 
-      main = qset(`#${settings.app.id_tray}`); 
-      listen()
-      } )
-  }
-  
-  
-  /* Start function */
-  
-  
-  let start = function() {
-    // get the level data
-
-    // process the map data
-
-    /* process the unit data */
-    // generate the player
-    generatePlayer('sentinel')
-
-    // generate map
-  }
-
-  
-  let heartbeat = function() {
-    window.requestAnimationFrame( heartbeat )
-    
-    updateHero()
-  }
-  
-  let joystickDir = function(e) {
-    let datum = e.detail
-    
-    data.hero.v = {
-      x: datum.x,
-      y: datum.y,
-      m: datum.len,
-      r: datum.r,
-    }
-  }
-  let joystickAim = function(e) {
-    let datum = e.detail
-    
-    // Update hero rotation
-    data.hero.r = datum.r
-  }
   
   /* Update Functions */
   let updateHero = function() {
@@ -158,14 +86,13 @@ mg3.engine = (function() {
       /* Comptroller Instructions */
       main.addEventListener( events.comptroller.engine, startEngine )
       main.addEventListener( events.comptroller.united, unitLoaded )
+      main.addEventListener( events.comptroller.js_payload, jsPayload )
     })
-    
-    // main.addEventListener( events.incoming.engine_start, start )
-    // main.addEventListener( events.incoming.input_joystick_dir, joystickDir )
-    // main.addEventListener( events.incoming.input_joystick_aim, joystickAim )
   }
   
   let startEngine = async function(e) {
+    // pause the Clock
+    raiseEvent( canvas, events.engine.clock_pause, `starting engine and level loading` )
     // clear Data
     resetData()
     
@@ -198,7 +125,24 @@ mg3.engine = (function() {
   let unitLoaded = function(e) {
     // console.log(`Unit Loaded`, e.detail)
     let completed = splash.updateLine(`assets`, splash.getLine(`assets`)[0][`count`]++, `Loaded unit ${e.detail.uuid}...`)
-    if (completed) splasher.next()
+    if (completed) { 
+      splasher.next()
+      raiseEvent( canvas, events.engine.clock_unpause, `level loading completed` )
+    }
+  }
+
+  let jsPayload = function(e) {
+    let payload = e.detail
+    if (payload.wh == 'dir') {
+      data.hero.v = {
+        x: -payload.x / settings.game.speed_refactor,
+        y:  payload.y / settings.game.speed_refactor,
+        m:  payload.len,
+        r:  payload.r,
+      }
+    } else if (payload.wh == 'aim') {
+      data.hero.r = payload.r
+    }
   }
   
   let resetData = function() {
@@ -209,7 +153,7 @@ mg3.engine = (function() {
   }
   
   let tick = function(e) {
-    
+    updateHero()
   }
   
   let loadLevel = function(levelData) {
@@ -219,6 +163,7 @@ mg3.engine = (function() {
     let datum  = UNITS['sentinel'] // MODIFY
     let player = generateUnit( datum.key, datum, true )
     data.hero = player
+
     // generate units
     levelData.enemies.forEach(datum => {
       let enemy = generateUnit( datum.model, datum, false )
@@ -236,15 +181,14 @@ mg3.engine = (function() {
     let unit = new gen( isPlayer ? 'hero' : 'unit', {t: isPlayer ? 'player' : 'actor'})
         unit.a.keys = meta.animationKeys
         unit.meta   = meta
-        unit.x = datum?.pos?.x
-        unit.y = datum?.pos?.y
-        unit.r = datum?.pos?.r
+        unit.x = datum?.pos?.x || unit.x
+        unit.y = datum?.pos?.y || unit.y
+        unit.r = datum?.pos?.r || unit.r
     
     raiseEvent( canvas, events.engine.unit, unit )
     
     return unit
   }
-
 
   return {
     data: function() { return data },

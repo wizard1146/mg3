@@ -27,74 +27,7 @@
 
 document.addEventListener("DOMContentLoaded", async function(event) {
 
-  /*  
-  let me = 'user'
-  let loaders = [
-    {user: me, progress: 0},
-  ]
-
-  let gm = runeworks.multisplash
-
-  let r = gm.start([me])
-      r.next()
-
-  let timer = setInterval(function() {
-    let input = {}
-    loaders.forEach(loader => {
-      let n  = Math.floor(Math.random() * 8)
-          n += loader.progress
-          n  = Math.min(100, n)
-      loader.progress = n
-      input[loader.user] = n
-    })
-
-    let m = gm.update(input)
-    if (!m) {
-      clearInterval(timer)
-      r.next()
-    }
-  }, 1000 )
-  
-  
-  sp = new mg3.splash.Splash({
-    lines     : ['smolprotecc','wazir'],
-    background: `assets/splash_001.png`,
-    fade: 1800,
-  })
-  g  = sp.start()
-  g.next()
-
-
-  */
-
-  let prod = false
-  if (prod) {
-  
-  let rws = runeworks.splash.start({
-    fadeOutDelay: 2400,
-  })
-  rws.next()
-  // Your intermediate code here
-
-  rws.next()
-  // Continue here
-  }
-  
-  
-
   mg3.preloader.init()
-  
-  /*
-  setTimeout(() => {
-    let k = mg3.season_001.UNITS['sentinel']
-    mg3.canvas.loadModel(`assets/${k.uri}/scene.gltf`,
-    {
-      animationKeys: k.animationKeys, 
-      scale        : k.scale, 
-      position     : { x: 0, y: 10 },
-      rotation     : Math.PI,
-    })
-  }, 1500)
-  */
+
 })
 </script>

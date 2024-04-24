@@ -54,8 +54,10 @@ mg3.settings = (function() {
     },
     game: {
       // Settings
-      fps         : 60,
-      size_unit   : 24,
+      fps           : 60,
+      size_unit     : 24,
+      speed_limiter : 20.4,
+      speed_refactor: 55,
     },
     canvas: {
       // IDs
@@ -89,11 +91,29 @@ mg3.settings = (function() {
       id_js_dir   : `mgi-js-dir`,
       id_js_aim   : `mgi-js-aim`,
       // Joysticks
+      js_maximum  : 100,
+      // styling
       js_size         : `50vmin`,
       js_size_max     : `180px`,
       js_offset_bottom: `15px`,
       js_offset_left  : `13px`,
       js_offset_right : `24px`,
+      // constructor options
+      js_dir_options  : {
+        internalFillColor  : `rgba( 231, 231, 231, 0.87 )`,
+        internalLineWidth  : 7,
+        internalStrokeColor: `rgba(  14,  14,  14, 0.27 )`,
+        externalLineWidth  : 18,
+        externalStrokeColor: `rgba(  83,  83,  83, 0.03 )`,
+      },
+      js_aim_options  : {
+        internalFillColor  : `rgba( 231, 231, 231, 0.87 )`,
+        internalLineWidth  : 7,
+        internalStrokeColor: `rgba(  14,  14,  14, 0.27 )`,
+        externalLineWidth  : 18,
+        externalStrokeColor: `rgba(  83,  83,  83, 0.03 )`,
+        autoReturnToCenter : false,
+      },
     },
   }
   

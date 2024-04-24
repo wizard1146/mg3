@@ -4,108 +4,85 @@ mg3.input = (function() {
   /* Meta variables */
   let qset       = mg3.utilities.qselect
   let raiseEvent = mg3.utilities.raiseEvent
+  let inject     = function(str, tar) { let t = tar ? tar : body; t.insertAdjacentHTML('beforeend', str) }
   
+  let events     = mg3.comptroller.events()
+  let event_initialise = events.preloader.initial
   
   /* Module Settings & Events */
-  let settings = {
-    keys    : {
-      movement: ['w','a','s','d','W','A','S','D'],
-      actions : ['p','l','P','L'],
-    },
-    joystick: {
-      maximum: 100,
-    },
-    app     : {
-      id_tray   : 'mg-main',
-      id_subtray: 'mg-submain',
-    },
-    canvas  : {
-      show_xy   : 'mgx-show-xy',
-      id_xy     : 'mgx-xy',
-    },
-  }
-  let events = {
-    incoming: {
-      initialise  : 'mgc-initialise',
-      selfDestruct: 'mgc-self-destruct',
-      stage_start : 'mgu-stage-start',
-      // Receive joystick
-      joystick_dir: 'mgu-joystick-dir',
-      joystick_aim: 'mgu-joystick-aim',
-    },
-    internal: {
-    
-    },
-    outgoing: {
-      input_key_movement: 'mgi-input-key-movement',
-      input_key_action  : 'mgi-input-key-action',
-      input_key_miscellaneous: 'mgi-input-key-misc',
-      
-      input_joystick_dir: `mgi-input-joystick-dir`,
-      input_joystick_aim: `mgi-input-joystick-aim`,
-    },
-  }
+  let settings   = mg3.settings.get()
   
   /* Memory */
-  let body, main;
+  let body, main, submain, mmenu, canvas;
+  let jsDir, jsAim;
+
   /* Computational variables */
 
   
-  let initialise = function() {
-  }
-  
+  // Initialisation
+  body = qset(`body`)
+  body.addEventListener( event_initialise, function() {
+    // Listen
+    listen()
+    // Signal Ready
+    raiseEvent( body, events.comptroller.count, `input` )
+  })
+
   let listen = function() {
-  
-    // Joysticks
-    main.addEventListener( events.incoming.joystick_dir, joystickDir )
-    main.addEventListener( events.incoming.joystick_aim, joystickAim )
+    body.addEventListener( events.comptroller.ready, function(e) {
+      let g = e.detail
+      main    = g.main
+      submain = g.submain
+      canvas  = g.canvas
+      mmenu   = g.mmenu
+      
+      /* Comptroller Instructions */
+      main.addEventListener( events.comptroller.canvas, renderInputs )
+    })
   }
-  
+
+  let renderInputs = function() {
+    renderJoysticks()
+  }
+
+  let renderJoysticks = function() {
+    inject(`
+      <div id="${settings.input.id_js_dir}" class="absolute bottom-left"></div>
+      <div id="${settings.input.id_js_aim}" class="absolute bottom-right"></div>
+    `, submain)
+    jsDir = new JoyStick( settings.input.id_js_dir, settings.input.js_dir_options, joystickDir )
+    jsAim = new JoyStick( settings.input.id_js_aim, settings.input.js_aim_options, joystickAim )
+  }
+
+  let joystickDir = function(e) { joystickNotify( joystickParse( e, 'dir' ) ) }
+  let joystickAim = function(e) { joystickNotify( joystickParse( e, 'aim' ) ) }
+
+  let joystickNotify = function( payload ) { raiseEvent( submain, events.input.js_payload, payload ) }
+
+  let joystickParse = function(datum, type) {
+    let x  = parseInt(datum.x)
+    let y  = parseInt(datum.y)
+    let r  = joystickRotation(x, y)
+    let len = Math.min( Math.sqrt(x*x + y*y), settings.input.js_maximum )
+    let mx  = len * Math.cos(r + Math.PI/2) * -1
+    let my  = len * Math.sin(r + Math.PI/2)
+    return {
+      x: mx, y: my, r: r, len: len,
+      c: datum.cardinalDirection,
+      xp: datum.xPosition,
+      yp: datum.yPosition,
+      wh: type,
+    }
+  }
+
   let joystickRotation = function(x, y) {
-    let r = Math.atan2(y, x)
-        r = r * 180 / Math.PI
-        r -= 90
+    let r = Math.atan2(y, x) * 180 / Math.PI - 90
     if (r > 0) r -= 360
         r *= -1
     return (r * Math.PI) / 180
   }
-  let joystickDir = function(e) { joystickInterpret(e.detail, 'dir') }
-  let joystickAim = function(e) { joystickInterpret(e.detail, 'aim') }
-  let joystickInterpret = function(datum, type) {
-    let x  = parseInt(datum.x)
-    let y  = parseInt(datum.y)
-    let r  = joystickRotation(x, y)
-    let len = Math.min( Math.sqrt(x*x + y*y), settings.joystick.maximum )
-    let mx  = len * Math.cos(r + Math.PI/2) * -1
-    let my  = len * Math.sin(r + Math.PI/2)
-    let ev = events.outgoing['input_joystick_' + type]
-    raiseEvent( main, ev, {x: mx, y: my, r: r, len: len, c: datum.cardinalDirection, xp: datum.xPosition, yp: datum.yPosition} )
-  }
-  
-  let keyed = function(e) {
-    let key = e.key
-    
-    if (settings.keys.movement.indexOf(key) != -1) {
-      raiseEvent( body, events.outgoing.input_key_movement, key )
-    } else if (settings.keys.actions.indexOf(key) != -1) {
-      raiseEvent( body, events.outgoing.input_key_action, key )
-    } else {
-      raiseEvent( body, events.outgoing.input_key_miscellaneous, key )
-    }
-  }
-  
-  
-  // Initialisation
-  qset('body').addEventListener( event_initialise, function() {
-    body = qset('body')
-    main = qset(`#${settings.app.id_tray}`)
-    
-    body.addEventListener('keypress', keyed)
-    listen()
-  })
 
   return {
-    init    : initialise,
-    settings: function() { return settings },
+
   }
 })()

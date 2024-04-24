@@ -12,7 +12,8 @@ mg3.comptroller = (function() {
   let inject     = function(str, tar) { let t = tar ? tar : body; t.insertAdjacentHTML('beforeend', str) }
   
   // Meta
-  let readyModules = [`canvas`, `engine`, `ux`]
+  /* IMPORTANT TO UPDATE: when calling "events.comptroller.count" */
+  let readyModules = [`canvas`, `engine`, `ux`, `input`]
   let clickMap = {
     /* IMPORTANT: These have to be ALL unique! */
     ux: ['new-game','continue-game','settings','settings-close','quit','quit-confirm','quit-close'],
@@ -34,6 +35,8 @@ mg3.comptroller = (function() {
     unit_loaded  : `mgc-unit-loaded`,
   }
   events.engine = {
+    clock_pause  : `mge-clock-pause`,
+    clock_unpause: `mge-clock-unpause`,
     unit         : `mge-unit`,
     click_outward: `outgoing-mge-click`,
   }
@@ -42,7 +45,7 @@ mg3.comptroller = (function() {
     click_outward: `outgoing-mgx-click`,
   }
   events.input = {
-  
+    js_payload   : `mgi-js-payload`,
   }
   
   events.comptroller = {
@@ -60,6 +63,7 @@ mg3.comptroller = (function() {
     // canvas instructions
     unit  : `mgc-unit-create`,
     united: `mgc-unit-loaded`,
+    js    : `mgc-js-payload`,
   }
   
   /* In-memory Variables */
@@ -90,10 +94,10 @@ mg3.comptroller = (function() {
       return this
     }
     pause() {
-      this.stopped = true
+      this.stopped = true; return this;
     }
     unpause() {
-      this.stopped = false
+      this.stopped = false; return this;
     }
     reset() {
       this.pause()
@@ -104,7 +108,6 @@ mg3.comptroller = (function() {
     }
     loop() {
       if (this.stopped) { /* do nothing */ } else {
-        window.requestAnimationFrame( this.loop.bind(this) )
         this.now  = performance.now()
         this.gone = this.now - this.then
         if (this.gone > this.fpsi) {
@@ -113,6 +116,7 @@ mg3.comptroller = (function() {
           raiseEvent( canvas, events.comptroller.tick, [this.frame, this.fps()], true )
         }
       }
+      window.requestAnimationFrame( this.loop.bind(this) )
     }
   }
   
@@ -169,10 +173,18 @@ mg3.comptroller = (function() {
     body.addEventListener( events.comptroller.count, count )
     body.addEventListener( events.comptroller.tick, tick )
     body.addEventListener( events.comptroller.click, click )
+
+    /* Router */
     // engine
+    canvas.addEventListener( events.engine.clock_pause, (e) => { console.log(`Pausing clock from request "ENGINE: ${e.detail}"`); clock.pause() } )
+    canvas.addEventListener( events.engine.clock_unpause, (e) => { console.log(`Unpausing clock from request "ENGINE: ${e.detail}"`); clock.unpause() } )
     canvas.addEventListener( events.engine.unit, unit )
     // canvas
     canvas.addEventListener( events.canvas.unit_loaded, unit_loaded )
+    // input
+    submain.addEventListener( events.input.js_payload, js_payload )
+
+    /* Generic Routing of clicks */
     // incoming clicks
     for (const [module, v] of Object.entries(events)) {
       if (v.click_outward) {
@@ -200,6 +212,9 @@ mg3.comptroller = (function() {
   let unit = function(e) { raiseEvent( canvas, events.comptroller.unit, e.detail ) }
   let unit_loaded = function(e) { raiseEvent( main, events.comptroller.united, e.detail ) }
   
+  // Input => Engine
+  let js_payload = function(e) { raiseEvent( main, events.comptroller.js_payload, e.detail ) }
+
   /*
      UI interactions routers: 
        this was designed so we can have a universal language for transmitting interactions from dynamically inserted HTML DOM elements
@@ -249,71 +264,3 @@ mg3.comptroller = (function() {
     state : function() { return state },
   }
 })()
-  
-/*
-    incoming: {
-      initialise    : 'mgc-initialise',
-      selfDestruct  : 'mgc-self-destruct',
-      injected_main : `mgu-injected-main`,
-      
-      stage_start      : 'mgu-stage-start',
-      state_change     : 'mgu-state-change',
-      stage_kill       : `mgu_stage_kill`,
-      loadModel: `mge-outgoing-load-model`,
-    },
-    internal: {
-      setupReady       : 'mgb-ready',
-      canvas_tick      : 'mgc_tick',
-      canvas_mousemove : 'mousemove',
-    },
-    outgoing: {
-      initialise    : 'mgc-initialise',
-      selfDestruct  : 'mgc-self-destruct',
-      stage_move    : 'mgx-stage-move',
-      tick          : 'mgc-outgoing-tick',
-    },
-    
-  let events = {
-    incoming: {
-      initialise    : 'mgc-initialise',
-      injected_main : `mgu-injected-main`,
-      engine_start  : `mgu-engine-start`,
-      stage_start   : `mgu-stage-start`,
-      
-      input_key_movement     : 'mgi-input-key-movement',
-      input_key_action       : 'mgi-input-key-action',
-      input_key_miscellaneous: 'mgi-input-key-misc',
-      
-      input_joystick_dir     : `mgi-input-joystick-dir`,
-      input_joystick_aim     : `mgi-input-joystick-aim`,
-    },
-    outgoing: {
-      loadModel: `mge-outgoing-load-model`,
-    },
-  }
-  
-  let events = {
-    incoming: {
-      initialise  : 'mgc-initialise',
-      stage_move  : 'mgx-stage-move',
-      canvas_tick : 'mgc-outgoing-tick',
-    },
-    internal: {
-      state_transition : 'mgu-transition',
-      container_wipe   : 'mgu-wipe',
-      container_subwipe: 'mgu-subwipe',
-      request_stage    : 'mgu-request-stage',
-    },
-    outgoing: {
-      injected_main    : `mgu-injected-main`,
-      
-      engine_start     : `mgu-engine-start`,
-      stage_start      : 'mgu-stage-start',
-      state_change     : 'mgu-state-change',
-      stage_kill       : `mgu_stage_kill`,
-      
-      joystick_dir: 'mgu-joystick-dir',
-      joystick_aim: 'mgu-joystick-aim',
-    },
-  }
-*/

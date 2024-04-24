@@ -198,6 +198,7 @@ mg3.css = (function() {
     #${s_app.id_mmenu_list} {
       width           : calc(${s_mmenu.width} - ${s_mmenu.offset});
       height          : ${s_mmenu.height};
+      max-height      : 100%;
       padding-right   : ${s_mmenu.offset};
       padding-left    : ${s_mmenu.offset};
       justify-content : center;
