@@ -6,147 +6,24 @@ mg3.ux = (function() {
   let raiseEvent = mg3.utilities.raiseEvent
   let inject     = function(str, tar) { let t = tar ? tar : body; t.insertAdjacentHTML('beforeend', str) }
   
+  let events     = mg3.comptroller.events()
+  let event_initialise = events.preloader.initial
+  
   /* Module Settings & Events */
-  let settings = {
-    app     : {
-      id_tray   : 'mg-main',
-      id_subtray: 'mg-submain',
-    },
-    splash  : {
-    
-    },
-    mainmenu: {
-      id_mainmenu : 'mgu-mainmenu',
-      id_list     : 'mgu-mainmenu-list',
-      list_element: 'mgu-listElement',
-    },
-    canvas  : {
-      show_xy   : 'mgx-show-xy',
-      id_xy     : 'mgx-xy',
-      id_fps    : 'mgx-fps',
-    },
-    controls: {
-      id_dir    : 'mg-joystick-dir',
-      id_aim    : 'mg-joystick-aim',
-      js_dir_options: {
-        internalFillColor  : `rgba( 231, 231, 231, 0.87 )`,
-        internalLineWidth  : 7,
-        internalStrokeColor: `rgba(  14,  14,  14, 0.27 )`,
-        externalLineWidth  : 18,
-        externalStrokeColor: `rgba(  83,  83,  83, 0.03 )`,
-      },
-      js_aim_options: {
-        internalFillColor  : `rgba( 231, 231, 231, 0.87 )`,
-        internalLineWidth  : 7,
-        internalStrokeColor: `rgba(  14,  14,  14, 0.27 )`,
-        externalLineWidth  : 18,
-        externalStrokeColor: `rgba(  83,  83,  83, 0.03 )`,
-        autoReturnToCenter : false,
-      }
-    },
-    hud: {
-      id_hud         : 'mg-hud-main',
-      id_x           : 'mg-hud-x',
-      id_y           : 'mg-hud-y',
-      id_sector      : 'mg-hud-sector',
-      id_engine      : 'mg-hud-engine',
-      id_engineThrust: 'mg-hud-engine-thrust',
-      class_coords   : 'mg-hud-class-coords',
-      class_sector   : 'mg-hud-class-sector',
-    }
-  }
-  let events = {
-    incoming: {
-      initialise  : 'mgc-initialise',
-      stage_move  : 'mgx-stage-move',
-      canvas_tick : 'mgc-outgoing-tick',
-    },
-    internal: {
-      state_transition : 'mgu-transition',
-      container_wipe   : 'mgu-wipe',
-      container_subwipe: 'mgu-subwipe',
-      request_stage    : 'mgu-request-stage',
-    },
-    outgoing: {
-      injected_main    : `mgu-injected-main`,
-      
-      engine_start     : `mgu-engine-start`,
-      stage_start      : 'mgu-stage-start',
-      state_change     : 'mgu-state-change',
-      stage_kill       : `mgu_stage_kill`,
-      
-      joystick_dir: 'mgu-joystick-dir',
-      joystick_aim: 'mgu-joystick-aim',
-    },
-  }
+  let settings   = mg3.settings.get()
   
   /* State variables */
   let STATE    = { SPLASH: 0, MAINMENU: 1, CREATOR: 2, GAME: 3, SKILLTREE: 4 }
   let SUBSTATE = { STORY: 0, CHARSHEET: 1, INVENTORY: 2 }
   /* Memory */
-  let body, main, submain, state, substate, showX, showY;
+  let body, main, submain, mmenu, canvas;
+  let state, substate, showX, showY;
   let js_dir, js_aim, hud_main;
   let jsDir, jsAim, hudX, hudY, hudSector, hudEngineThrust, hudFPS;
   
   /* Computational variables */
 
-  
-  let initialise = function() {
-    console.log('mg.ux initialising')
-    
-    // assign body
-    body = qset('body')
-    // inject tray
-    inject(`
-     <div id="${settings.app.id_tray}">
-       <div id="${settings.app.id_subtray}">
-       </div>
-     </div>`)
-    // assign main
-    main    = qset(`#${settings.app.id_tray}`)
-    submain = qset(`#${settings.app.id_subtray}`)
-    // inform modules
-    raiseEvent( body, events.outgoing.injected_main )
-    
-    // add listeners
-    listen()
-    
-    // SIMULATE: request a game level + canvas -> change this to a menu UI when desiring control
-    mainMenu()
-    // setTimeout(requestStage, 1000)
-    // setTimeout(endStage, 8000)
-  }
-  
-  let listen = function() {
-    main.addEventListener( events.internal.container_wipe, wipe )
-    main.addEventListener( events.internal.container_subwipe, subwipe )
-    
-    main.addEventListener( events.incoming.stage_move, updateStageXY )
-    
-    // Listen for Stage Request
-    main.addEventListener( events.internal.request_stage, requestStage )
-    
-    // Listen for Canvas Tick
-    main.addEventListener( events.incoming.canvas_tick, canvasTick )
-  }
 
-  let mainMenu = function() {
-    inject(`
-      <div id="${settings.mainmenu.id_mainmenu}" class="absolute fullscreen center">
-        <div id="${settings.mainmenu.id_list}" class="absolute center flexbox syne-mono text-bright text-accent text-right no-select cursor">
-          <div class="${settings.mainmenu.list_element}" id="" onclick="mg3.utilities.raiseEvent(document.querySelector('#${settings.app.id_tray}'), '${events.internal.request_stage}')"><div class="backdrop"></div><div class="value">New Game</div></div>
-          <div class="${settings.mainmenu.list_element} disabled" id=""><div class="backdrop"></div><div class="value">Continue Game</div></div>
-          <div class="${settings.mainmenu.list_element}" id=""><div class="backdrop"></div><div class="value">Settings</div></div>
-          <div class="${settings.mainmenu.list_element}" id=""><div class="backdrop"></div><div class="value">Quit</div></div>
-        </div>
-      </div>
-    `, submain)
-  }
-  
-  let swapState = function() {
-    raiseEvent( events.outgoing.state_change )
-  }
-  
   let canvasTick = function(e) {
     // let data = e.detail.data
     // let hero = data.hero
@@ -232,24 +109,6 @@ hudFPS.innerHTML = c.alpha + ',' + c.beta + ',' + c.radius
     hud_y    = qset(`#${settings.hud.id_y}`)
     hud_y.style.bottom = js_dir.clientHeight
     hud_x.style.setProperty('left', `calc(${js_dir.clientWidth}px - ${hud_x.clientWidth}px)`)
-    
-/*
-    let k = mg3.season_001.UNITS['sentinel']
-    mg3.canvas.loadModel(`assets/${k.uri}/scene.gltf`,
-    {
-      animationKeys: k.animationKeys, 
-      scale        : k.scale, 
-      position     : { x: 0, y: 10 },
-      rotation     : Math.PI,
-    })
-    let f = mg3.season_001.UNITS['sentinel']
-    mg3.canvas.loadModel(`assets/${f.uri}/scene.gltf`,
-    {
-      animationKeys: f.animationKeys, 
-      scale        : f.scale, 
-      position     : { x: 0, y: 0 },
-    }, true)
-*/
   }
   
   let endStage = function() {
@@ -294,8 +153,120 @@ hudFPS.innerHTML = c.alpha + ',' + c.beta + ',' + c.radius
   
   let subwipe = function() { submain.innerHTML = '' }
 
+
+
   // Initialisation listener
-  qset('body').addEventListener( events.incoming.initialise, initialise )
+  body = qset(`body`)
+  body.addEventListener( event_initialise, function() {
+    // Listen
+    listen()
+    // Signal Ready
+    raiseEvent( body, events.comptroller.count, `ux` )
+  })
+  
+  let listen = function() {
+    body.addEventListener( events.comptroller.ready, function(e) {
+      let g = e.detail
+      main    = g.main
+      submain = g.submain
+      canvas  = g.canvas
+      mmenu   = g.mmenu
+      
+      /* Comptroller Instructions */
+      main.addEventListener( events.comptroller.title, renderTitle )
+      main.addEventListener( events.ux.click, click )
+      main.addEventListener( events.comptroller.canvas, renderHUD )
+    })
+  }
+  
+  let renderHUD = function() {
+    let x = `${settings.hud.class_coords} absolute syne-mono text-right text-grey bottom-left`
+    let y = `${settings.hud.class_coords} absolute syne-mono text-right text-grey`
+    inject(`
+      <div id="${settings.hud.id_main}" class="absolute fullscreen center no-pointer">
+        <div id="${settings.hud.id_xyz}" class="absolute top-right">
+          <div id="${settings.hud.id_xyz}-X"><div class="label">X</div><div class="value"></div></div>
+          <div id="${settings.hud.id_xyz}-Y"><div class="label">Y</div><div class="value"></div></div>
+          <div id="${settings.hud.id_xyz}-Z"><div class="label">Z</div><div class="value"></div></div>
+        </div>
+        <div id="${settings.hud.id_fps}" class="absolute top-right syne-mono text-grey"><div class="value"></div></div>
+        <div id="${settings.hud.id_x}" class="${x}"><div class="value"></div></div>
+        <div id="${settings.hud.id_y}" class="${y}"><div class="value"></div></div>
+      </div>
+    `, submain)
+  }
+  
+  let renderTitle = function() {
+    let f = `center flexbox syne-mono text-bright text-accent text-right no-select cursor`
+    let k = qset(`#${settings.application.id_mmenu_list}`)
+        k.classList.value = f
+    
+    let menuElements = [{key: 'new-game', value: 'New Game'}, {key: 'continue-game', value: 'Continue Game'}, {key: 'settings', value: 'Settings'}, {key: 'quit', value: 'Quit'}]
+    let clickTemplate = `<div class="${settings.application.cl_mmenu_elem}" id="ELEMENT_ID" onclick="ELEMENT_ONCLICK"><div class="backdrop"></div><div class="value">ELEMENT_VALUE</div></div>`
+    let str = ``
+    menuElements.forEach(item => {
+      str += clickTemplate
+               .replace(`ELEMENT_ID`, item.key)
+               .replace(`ELEMENT_ONCLICK`, `mg3.utilities.raiseEvent( document.querySelector(\'body\'), \'${events.comptroller.click}\', \'${item.key}\' )`)
+               .replace(`ELEMENT_VALUE`, item.value)
+    })
+    
+    inject(str, k)
+    
+    // Unhide
+    let m = qset(`#${settings.application.id_mmenu}`)
+        m.classList.remove('hidden')
+  }
+  
+  let renderQuit = function() {
+    let clickReduce = `mg3.utilities.raiseEvent( document.querySelector(\'body\'), \'${events.comptroller.click}\', \'quit-close\' )`
+    let clickXClose = `mg3.utilities.raiseEvent( document.querySelector(\'body\'), \'${events.comptroller.click}\', \'quit-confirm\' )`
+    inject(`
+      <div id="${settings.application.id_mmenu_quit}" class="full-modal syne-mono text-grey text-center">
+      <div class="full-modal backing"></div>
+      <div class="value no-select center cursor" onclick="${clickXClose}">Quit?</div>
+      <div class="x-close no-select absolute top-right cursor" onclick="${clickReduce}">x</div>
+      </div>`, mmenu)
+  }
+  let closeQuit = function() { qset(`#${settings.application.id_mmenu_quit}`).remove() }
+  
+  let renderSettings = function() {
+    let clickReduce = `mg3.utilities.raiseEvent( document.querySelector(\'body\'), \'${events.comptroller.click}\', \'settings-close\' )`
+    inject(`
+      <div id="${settings.application.id_mmenu_sets}" class="full-modal syne-mono text-grey text-center">
+      <div class="full-modal backing"></div>
+      <div class="value flexbox flex-column no-select center cursor" onclick="">
+        <div class="header">Settings</div>
+      </div>
+      <div class="x-close no-select absolute top-right cursor" onclick="${clickReduce}">x</div>
+      </div>
+    `, mmenu)
+  }
+  let closeSettings = function() { qset(`#${settings.application.id_mmenu_sets}`).remove() }
+  
+  let click = function(e) {
+    let msg = e.detail
+    switch(msg) {
+      // Game
+      case 'new-game':
+        // inform
+        raiseEvent( body, events.ux.click_outward, msg )
+        // remove
+        mmenu.classList.add('hidden')
+        break;
+      case 'continue-game':
+        break;
+        
+      // Settings
+      case 'settings': renderSettings(); break;
+      case 'settings-close': closeSettings(); break;
+      
+      // Quit
+      case 'quit': renderQuit(); break;
+      case 'quit-confirm': window.close(); break;
+      case 'quit-close': closeQuit(); break;
+    }
+  }
   
   return {
   

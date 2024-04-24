@@ -12,7 +12,7 @@ mg3.season_001 = (function(){
   // Level 1
   LEVELS[`001`] = new Level({
     enemies: [
-      {model: 'hiro', pos: {x: 0, y: 0}},
+      {model: 'hiro', pos: {x: 0, y: 10, r: Math.PI}},
     ],
     map: [],
     terrain: [],

@@ -2,25 +2,15 @@ mg3 = typeof mg3 != 'undefined' ? mg3 : {}
 
 mg3.css = (function() {
   /* Meta variables */
-  let addCSS = mg3.utilities.addCSS
-  let qset   = function( selector ) { let b = document.querySelectorAll( selector ); return b?.length > 1 ? b : document.querySelector( selector ) }
+  let addCSS  = mg3.utilities.addCSS
+  let events  = mg3.comptroller.events()
+  let settings = mg3.settings.get()
+  let qset    = function( selector ) { let b = document.querySelectorAll( selector ); return b?.length > 1 ? b : document.querySelector( selector ) }
+  
+  let event_initialise = events.preloader.initial
   
   /* Module Settings & Events */
-  let settings = {
-    // globals
-    ruleIdentifier: 'mg-css-rules',
-    
-    // ui
-    colors: {
-      appBackground: `hsl(224deg,61%,13%)`,
-    },
-    joysticks: {
-      size         : `50vmin`,
-      size_max     : `180px`,
-      offset_bottom: `15px`,
-      offset_left  : `13px`,
-      offset_right : `24px`,
-    },
+  let settingr = {
     hud      : {
       width          : `40%`,
       height         : `13vmin`,
@@ -47,39 +37,21 @@ mg3.css = (function() {
       hud_sector       : 'mg-hud-sector',
       hud_coords_class : 'mg-hud-class-coords',
     },
-    mainmenu: {
-      background: `assets/splash_002.png`,
-      height    : `70%`,
-      width     : `23ch`,
-      offset    : `3ch`,
-      fsize     : `17pt`,
-      // elements
-      margin    : `0.4ch`,
-      padding   : `1.3ch`,
-      backing   : `rgba( 255, 255, 255, 0.03 )`,
-      backingHover: `rgba( 255, 255, 255, 0.08 )`
-    }
-  }
-  let events = {
-    incoming: {
-      initialise  : 'mgc-initialise',
-      selfDestruct: 'mgc-self-destruct',
-    },
-    internal: {
-    
-    },
-    outgoing: {
-    
-    },
   }
   
   /* Memory */
+  let s_app    = settings.application
+  let s_mmenu  = settings.mmenu
+  let s_game   = settings.game
+  let s_canvas = settings.canvas
+  let s_hud    = settings.hud
+  let s_input  = settings.input
   
   /* Computational variables */
 
   
   let refresh = function() {
-    let r = settings.ruleIdentifier
+    let r = settings.application.css_rules_identifier
     // Remove previous CSS rules
     document.querySelectorAll( r ).forEach(e => e.remove())
     // Implement current CSS rules
@@ -102,7 +74,7 @@ mg3.css = (function() {
     `,
     `
     :root {
-      --app-background-color: ${settings.colors.appBackground};
+      --app-background-color: ${settings.application.color_background};
     }
     body {
       background: var(--app-background-color);
@@ -156,6 +128,9 @@ mg3.css = (function() {
     .flexbox {
       display  : flex;
     }
+    .flex-column {
+      flex-direction: column;
+    }
     .text-center {
       text-align: center;
     }
@@ -176,6 +151,14 @@ mg3.css = (function() {
     }
     .hidden {
       display: none;
+    }
+    .full-modal {
+      position : absolute;
+      left     : 50%;
+      top      : 50%;
+      transform: translate( -50%, -50% );
+      width    : 100%;
+      height   : 100%;
     }
     `,
     `
@@ -200,45 +183,40 @@ mg3.css = (function() {
     `,
     ` 
     /* Core Elements */
-    #${settings.id.canvas_id_fps} {
-      right: calc(1.1vmin + 8ch + 0.5vmin + 1.3ch);
+    #${s_hud.id_fps} {
+      right: calc(1.1vmin + 8ch + 0.5vmin + 2.3ch);
       top  : 13px;
     }
-    #mg-main, #mg-submain {
-      position: absolute;
-      left    : 0%;
-      top     : 0%;
-      height  : 100%;
-      width   : 100%;
+    #${s_app.id_main}, #${s_app.id_submain} {
     }
 
     /* Main Menu */
-    #${settings.id.mainmenu} {
-      background-image: url(${settings.mainmenu.background});
+    #${s_app.id_mmenu} {
+      background-image: url(${s_mmenu.background});
       background-size : cover;
     }
-    #${settings.id.mainmenu_list} {
-      width           : calc(${settings.mainmenu.width} - ${settings.mainmenu.offset});
-      height          : ${settings.mainmenu.height};
-      padding-right   : ${settings.mainmenu.offset};
-      padding-left    : ${settings.mainmenu.offset};
+    #${s_app.id_mmenu_list} {
+      width           : calc(${s_mmenu.width} - ${s_mmenu.offset});
+      height          : ${s_mmenu.height};
+      padding-right   : ${s_mmenu.offset};
+      padding-left    : ${s_mmenu.offset};
       justify-content : center;
       flex-direction  : column;
-      font-size       : ${settings.mainmenu.fsize};
+      font-size       : ${settings.mmenu.fsize};
     }
-    .${settings.id.mainmenu_list_class} {
-      padding         : ${settings.mainmenu.padding};
-      margin          : ${settings.mainmenu.margin};
-      background      : ${settings.mainmenu.backing};
+    .${s_app.cl_mmenu_elem} {
+      padding         : ${s_mmenu.padding};
+      margin          : ${s_mmenu.margin};
+      background      : ${s_mmenu.backing};
       border-radius   : 9px;
       position        : relative;
       overflow  : hidden;
       transition: all 230ms;
     }
-    .${settings.id.mainmenu_list_class} .value {
+    .${s_app.cl_mmenu_elem} .value {
       position: relative;
     }
-    .${settings.id.mainmenu_list_class} .backdrop {
+    .${s_app.cl_mmenu_elem} .backdrop {
       position : absolute;
       overflow : hidden;
       width    : 100%;
@@ -247,21 +225,64 @@ mg3.css = (function() {
       top      : 0%;
       backdrop-filter: blur(6px);
     }
-    .${settings.id.mainmenu_list_class}:hover {
-      background      : ${settings.mainmenu.backingHover};
+    .${s_app.cl_mmenu_elem}:hover {
+      background      : ${s_mmenu.backingHover};
     }
-    .${settings.id.mainmenu_list_class}:hover .value {
+    .${s_app.cl_mmenu_elem}:hover .value {
       color   : rgba( 231, 184, 203, 0.78 );
     }
-    .${settings.id.mainmenu_list_class}:hover .backdrop {
+    .${s_app.cl_mmenu_elem}:hover .backdrop {
       backdrop-filter: blur(11px);
     }
     
-    /* Canvas */
-    #mg-canvas {
-
+    /* Main Menu Modals */
+    #${s_app.id_mmenu_sets},
+    #${s_app.id_mmenu_quit} {
+      font-size      : ${s_mmenu.modal_fsize};
+      backdrop-filter: ${s_mmenu.modal_filter};
     }
-    #${settings.id.canvas_id_xy} {
+    #${s_app.id_mmenu_sets} .backing,
+    #${s_app.id_mmenu_sets} .value {
+      width          : ${s_mmenu.modal_settings_width};
+      height         : ${s_mmenu.modal_settings_height};
+    }
+    #${s_app.id_mmenu_quit} .backing,
+    #${s_app.id_mmenu_quit} .value {
+      width       : ${s_mmenu.modal_quit_width};
+      height      : ${s_mmenu.modal_quit_height};
+    }
+    #${s_app.id_mmenu_sets} .backing,
+    #${s_app.id_mmenu_quit} .backing {
+      background     : ${settings.mmenu.modal_target_background};
+      backdrop-filter: ${s_mmenu.modal_target_filter};
+      border-radius  : ${s_mmenu.modal_border_radius};
+    }
+    #${s_app.id_mmenu_quit} .value {
+      line-height : ${s_mmenu.modal_quit_height};
+    }
+    #${s_app.id_mmenu_sets} .x-close,
+    #${s_app.id_mmenu_quit} .x-close {
+      padding        : ${s_mmenu.modal_xclose_padding};
+      line-height    : 1ch;
+      background     : ${settings.mmenu.modal_target_background};
+      backdrop-filter: ${s_mmenu.modal_target_filter};
+      border-bottom-left-radius: ${s_mmenu.modal_border_radius};
+    }
+    #${s_app.id_mmenu_sets} .x-close:hover,
+    #${s_app.id_mmenu_quit} .value:hover,
+    #${s_app.id_mmenu_quit} .x-close:hover {
+      color          : ${s_mmenu.modal_hover_color};
+    }
+    #${s_app.id_mmenu_sets} .header {
+      color          : ${s_mmenu.settings_header_color};
+      line-height    : ${s_mmenu.settings_header_line_height};
+    }
+    
+    /* Canvas */
+    #${s_canvas.id_canvas} {
+      outline: none;
+    }
+    #${s_hud.id_xyz} {
       padding-left  : 1.1vmin;
       padding-bottom: 0.8vmin;
       padding-top   : 0.5vmin;
@@ -272,67 +293,57 @@ mg3.css = (function() {
       background: rgba( 255, 255, 255, 0.03 );
     }
     
-    #${settings.id.canvas_id_xy} div {
+    #${s_hud.id_xyz} div {
       display       : flex;
       flex-direction: row;
     }
-    #${settings.id.canvas_id_xy} div div {
+    #${s_hud.id_xyz} div div {
       white-space   : pre-wrap;
     }
-    #${settings.id.canvas_id_xy}-X-value,
-    #${settings.id.canvas_id_xy}-Y-value,
-    #${settings.id.canvas_id_xy}-Z-value {
+    #${s_hud.id_xyz}-X .value,
+    #${s_hud.id_xyz}-Y .value,
+    #${s_hud.id_xyz}-Z .value {
       right    : calc(0% + 1.5ch);
     }
     
     /* Joysticks */
-    #${settings.id.joystick_dir},
-    #${settings.id.joystick_point} {
-      width    : ${settings.joysticks.size};
-      height   : ${settings.joysticks.size};
-      max-width : ${settings.joysticks.size_max};
-      max-height: ${settings.joysticks.size_max};
+    #${s_input.id_js_dir},
+    #${s_input.id_js_aim} {
+      width    : ${settings.input.js_size};
+      height   : ${settings.input.js_size};
+      max-width : ${settings.input.js_size_max};
+      max-height: ${settings.input.js_size_max};
     }
-    #${settings.id.joystick_dir},
-    #${settings.id.joystick_point} {
-      bottom   : ${settings.joysticks.offset_bottom};
+    #${s_input.id_js_dir},
+    #${s_input.id_js_aim} {
+      bottom   : ${settings.input.js_offset_bottom};
     }
-    #${settings.id.joystick_dir} {
-      left     : ${settings.joysticks.offset_left};
+    #${s_input.id_js_dir} {
+      left     : ${settings.input.js_offset_left};
     }
-    #${settings.id.joystick_point} {
-      right    : ${settings.joysticks.offset_right};
+    #${s_input.id_js_aim} {
+      right    : ${settings.input.js_offset_right};
     }
     
     /* HUD */
-    #${settings.id.hud_main} {
+    #${s_hud.id_main} {
     
     }
-    #${settings.id.hud_x} {
-      width : ${settings.hud.coordXY_width};
+    #${s_hud.id_x} {
+    
     }
-    #${settings.id.hud_y} {
-      width : ${settings.hud.coordXY_width};
+    #${s_hud.id_y} {
+    
     }
-    #${settings.id.hud_x},
-    #${settings.id.hud_y} {
-      opacity: ${settings.hud.coordXY_opacity};
-    }
-    #${settings.id.hud_sector} {
-      margin : ${settings.hud.sector_margin};
-      width  : ${settings.hud.sector_size};
-      height : ${settings.hud.sector_size};
-      border : 1px dashed rgba( 141, 141, 169, 0.33 );
-      opacity: ${settings.hud.sector_opacity};
-    }
-    #${settings.id.hud_sector} .value {
-      line-height: calc(${settings.hud.sector_size} * 0.97);
+    #${s_hud.id_x},
+    #${s_hud.id_y} {
+    
     }
     `,
   ]
   
   // Initialisation listener
-  qset('body').addEventListener( events.incoming.initialise, refresh )
+  qset('body').addEventListener( event_initialise, refresh )
 
   return {
     init    : refresh,

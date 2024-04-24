@@ -2,17 +2,10 @@ mg3 = typeof mg3 != 'undefined' ? mg3 : {}
 
 mg3.constructs = (function() {
   /* Meta variables */
+  let uuid     = mg3.utilities.uuid
   
   /* Module Settings & Events */
-  let settings = {
-    game    : {
-      size_unit    :  25,
-      size_sector  : 500,
-      
-      initial_x    :   0,
-      initial_y    :   0,
-    }
-  }
+  let settings = mg3.settings.get()
   
   /* Memory */
   
@@ -40,6 +33,7 @@ mg3.constructs = (function() {
   class Artefact {
     constructor(k, options) {
       // Key, X, Y, Type, Seed
+      this.id = uuid()
       this.k = k
       let args = {
         x: 0,
@@ -88,14 +82,11 @@ mg3.constructs = (function() {
   }
 
   class Tile extends Collidable {
-    constructor(options) {
-      const mx = options.mx
-      const my = options.my
+    constructor(mx, my, size_sector, options) {
       const key = `sector_MX${mx}_MY${my}`
- 
       super(key, options)
 
-      const ss = settings.game.size_sector 
+      const ss = size_sector 
 
       const mpx = mx * ss * 2
       const mpy = my * ss * 2    

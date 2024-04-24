@@ -76,7 +76,7 @@ mg3.utilities = (function() {
 
   let qselect    = function(selector) { let b = document.querySelectorAll( selector ); return b?.length > 1 ? b : document.querySelector( selector ) }
 
-  let raiseEvent = function(target, event, datum) { return target.dispatchEvent(new CustomEvent(event, {detail: datum})) };
+  let raiseEvent = function(target, event, datum, bubble) { return target.dispatchEvent(new CustomEvent(event, {detail: datum, bubbles: bubble ? bubble : false})) };
 
   /* Random */
   let random = function(ceiling, min) {

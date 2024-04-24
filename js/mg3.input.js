@@ -5,6 +5,7 @@ mg3.input = (function() {
   let qset       = mg3.utilities.qselect
   let raiseEvent = mg3.utilities.raiseEvent
   
+  
   /* Module Settings & Events */
   let settings = {
     keys    : {
@@ -51,11 +52,6 @@ mg3.input = (function() {
 
   
   let initialise = function() {
-    body = qset('body')
-    main = qset(`#${settings.app.id_tray}`)
-    
-    body.addEventListener('keypress', keyed)
-    listen()
   }
   
   let listen = function() {
@@ -99,8 +95,14 @@ mg3.input = (function() {
   }
   
   
-  // Initialisation listener
-  qset('body').addEventListener( events.incoming.initialise, initialise )
+  // Initialisation
+  qset('body').addEventListener( event_initialise, function() {
+    body = qset('body')
+    main = qset(`#${settings.app.id_tray}`)
+    
+    body.addEventListener('keypress', keyed)
+    listen()
+  })
 
   return {
     init    : initialise,

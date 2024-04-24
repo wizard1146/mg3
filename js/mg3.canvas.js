@@ -8,16 +8,20 @@ mg3.canvas = (function() {
   let season     = mg3.season_001
   let inject     = function(str, tar) { var t = tar ? tar : body; t.insertAdjacentHTML('beforeend', str) }
 
+  let events  = mg3.comptroller.events()
+  let event_initialise = events.preloader.initial
+  
   /* Settings */
+  let settings   = mg3.settings.get()
+  
+  /*
   let settings = {
     defaults: {
       camera: {
-/*
         alpha  : -Math.PI / 2,
         beta   :  Math.PI / 2.5,
         radius : 10,
         startPosition       : new BABYLON.Vector3( -1.73, 2.37, 4.97 ),
- */
         target : new BABYLON.Vector3( 0, 1, 0 ),
 
         wheelPrecision      : 11,
@@ -46,181 +50,21 @@ mg3.canvas = (function() {
       id    : 'mg-canvas',
     },
   }
+  */
 
   /* Events */
-  let events = {
-    incoming: {
-      initialise    : 'mgc-initialise',
-      selfDestruct  : 'mgc-self-destruct',
-      injected_main : `mgu-injected-main`,
-      
-      stage_start      : 'mgu-stage-start',
-      state_change     : 'mgu-state-change',
-      stage_kill       : `mgu_stage_kill`,
-      loadModel: `mge-outgoing-load-model`,
-    },
-    internal: {
-      setupReady       : 'mgb-ready',
-      canvas_tick      : 'mgc_tick',
-      canvas_mousemove : 'mousemove',
-    },
-    outgoing: {
-      initialise    : 'mgc-initialise',
-      selfDestruct  : 'mgc-self-destruct',
-      stage_move    : 'mgx-stage-move',
-      tick          : 'mgc-outgoing-tick',
-    },
-  }
 
   /* In-memory variables */
-  let body, canvas, camera, engine, scene, units = {}, player;
+  let body, main, submain, mmenu;
+  let canvas, engine, scene, units = {}, player;
 
   /* Computational variables */
 
-  /* Loop control */
-  let anim = {
-    stop : false,
-    frame: 0,
-    fps  : settings.fps,
-    fpsi : 0,
-    start: 0,
-    now  : 0,
-    then : 0,
-    gone : 0,  
-    prep : function() {
-      anim.stop  = false
-      anim.fpsi  = 1000 / anim.fps
-      anim.then  = performance.now()
-      anim.start = anim.then
-      anim.loop()
-    },
-    loop : function() { 
-      if (anim.stop) { return }
-      window.requestAnimationFrame( anim.loop )
-      anim.now  = performance.now()
-      anim.gone = anim.now - anim.then
-      if (anim.gone > anim.fpsi) { 
-        anim.then = anim.now - (anim.gone % anim.fpsi) 
-        anim.frame++
-        raiseEvent( canvas, events.internal.canvas_tick, anim.frame )
-      }
-    },
-    cease : function() {
-      anim.stop = true
-    },
-    reset : function() {
-      anim.cease()
-      anim.frame = 0
-    },
-    rates: function() { return 1000 * anim.frame/(anim.now - anim.start) },
-  }
-  
-
-  let setup = function(size) {
-    // some statics
-    body = document.querySelector('body')
-    
-    // set up main
-    body.addEventListener( events.incoming.injected_main, function() {
-      main    = qset(`#${settings.app.id_tray}`)
-      submain = qset(`#${settings.app.id_subtray}`)
-      eventify()
-    } )
-    main    = qset(`#${settings.app.id_tray}`)
-    submain = qset(`#${settings.app.id_subtray}`)
-  }
-  
-  let eventify = function() {
-    main.addEventListener( events.incoming.stage_start, stageStart )
-    main.addEventListener( events.incoming.stage_kill , stageEnd   )
-  }
-
-  let stageStart = async function() {
-    let s = `center fullscreen`
-    let c = `<canvas id="${settings.canvas.id}" class="${s}"></canvas>`
-    
-    // add the canvas
-    inject(c, submain)
-    
-    canvas = qset(`#${settings.canvas.id}`)
-    canvas.addEventListener( events.incoming.loadModel, loadModel )
-
-    var wi = window.innerWidth
-    var he = window.innerHeight
-    canvas.style.width = wi + 'px'
-    canvas.style.height = he + 'px'
-
-    // create the engine
-    engine = new BABYLON.Engine(canvas, false, {}, false)
-    // visual
-    engine.setHardwareScalingLevel(0.5)
-    engine.resize()
-
-    // prevent gltf files from auto-playing
-    BABYLON.SceneLoader.OnPluginActivatedObservable.add((e) => {
-      if (e.name === 'gltf' && e instanceof BABYLON.GLTFFileLoader) {
-        e.animationStartMode = BABYLON.GLTFLoaderAnimationStartMode.NONE
-      }
-    })
-    
-    // add event listeners
-    window.addEventListener('resize', function() { engine.resize() })
-    canvas.addEventListener( events.internal.canvas_tick, function() {
-      stageTick()
-      raiseEvent( main, events.outgoing.tick, {camera: camera} )
-    })
-    
-    // run defaultScene
-    scene = await defaultScene()
-    
-    // start the loop
-    anim.prep()
-  }
-  
-  let stageEnd = function() {
-    anim.reset()
-    canvas.remove()
-    canvas = undefined
-  }
-  
-  let stageTick = function() {
-    // get updated data
-    let data = mg3.engine.data()
-    let hero = data.hero
-
-    // move the models
-    if (player && hero.a) {
-      // move
-      player.moveTo( -hero.x / 144, hero.y / 144 )
-      // animate
-      if (player.anim.current !== hero.a.key) {
-        player.AnimateSpecific( hero.a.key )
-      }
-    }
-
-    // render scene
-    scene.render()
-  }
-  
-  let defaultScene = async function() {
-    // generate scene
-    let scene = await createScene()
-    // animate
- /*
-    if (false) {
-    
-    engine.runRenderLoop(function() {
-      scene.render()
-    })
-    }
-   */ 
-    // handler
-    return scene
-  }
 
   let createScene = function(options) {
     var scene = new BABYLON.Scene(engine)
-    let c   = settings.defaults.camera
+    
+    let c   = settings.canvas
     let cam = {}
         cam.alpha  = options?.cameraAlpha  ? options?.cameraAlpha  : c.alpha
         cam.beta   = options?.cameraBeta   ? options?.cameraBeta   : c.beta
@@ -235,6 +79,7 @@ mg3.canvas = (function() {
         cam.sx     = options?.cameraSensibilityX    || c.sensibilityX
         cam.sy     = options?.cameraSensibilityY    || c.sensibilityY
         cam.sp     = options?.cameraStartPosition   || c.startPosition
+        
 
     camera = new BABYLON.ArcRotateCamera('viewport', cam.alpha, cam.beta, cam.radius, cam.target)
     
@@ -311,24 +156,6 @@ mg3.canvas = (function() {
     
     return scene
   }
-
-  let loadModel = async function(uri, payload, isPlayer) {
-    let obj = await BABYLON.SceneLoader.ImportMeshAsync('', uri, '', scene)
-        
-    let unit = new UnitModel(obj, payload)
-    
-    if (payload?.scale) unit.scaleTo( payload?.scale )
-    if (payload?.position) unit.moveTo( payload?.position.x, payload?.position.y )
-    if (payload?.rotation) unit.rotateTo( payload?.rotation )
-    
-    unit.AnimateIdle()
-
-    // save the model 
-    units[unit.uuid] = unit
-    if (isPlayer) {
-      player = unit
-    }
-  }
   
   class UnitModel {
     constructor(datum, payload) {
@@ -399,19 +226,92 @@ mg3.canvas = (function() {
     }
   }
   
+  
   // Initialisation listener
-  qset('body').addEventListener( events.incoming.initialise, setup )
+  body = qset(`body`)
+  body.addEventListener( event_initialise, function() {
+    // Listen
+    listen()
+    // Signal Ready
+    raiseEvent( body, events.comptroller.count, `canvas` )
+  })
+  
+  let listen = function() {
+    body.addEventListener( events.comptroller.ready, function(e) {
+      let g = e.detail
+      main    = g.main
+      submain = g.submain
+      canvas  = g.canvas
+      mmenu   = g.mmenu
+      
+      /* Comptroller Instructions */
+      main.addEventListener( events.comptroller.canvas, renderCanvas )
+      canvas.addEventListener( events.comptroller.unit, loadModel )
+      
+      /* Canvas preparation */
+      // Canvas sizing
+      var wi = window.innerWidth
+      var he = window.innerHeight
+      canvas.width  = wi
+      canvas.height = he
+      // Engine
+      engine = new BABYLON.Engine(canvas, false, {}, false)
+      // Engine: Visual improvements
+      engine.setHardwareScalingLevel(0.5)
+      engine.resize()
+      // BABYLON: Prevent gltf files from auto-playing
+      BABYLON.SceneLoader.OnPluginActivatedObservable.add((e) => {
+        if (e.name === 'gltf' && e instanceof BABYLON.GLTFFileLoader) {
+          e.animationStartMode = BABYLON.GLTFLoaderAnimationStartMode.NONE
+        }
+      })
+      // Engine: Listen for resize
+      window.addEventListener('resize', function() { engine.resize() })
+    })
+  }
+  
+  let renderCanvas = async function(e) {
+    // Unhide canvas
+    canvas.classList.remove('hidden')
+    // Create scene
+    scene = await createScene()
+    // Listen to Comptroller tick
+    main.addEventListener( events.comptroller.tick, tick )
+  }
+  
+  let tick = function() {
+    // update scene
+    
+    // render scene  
+    scene.render()
+  }
+  
+  let loadModel = async function(e) {
+    let datum = e.detail
+    let uri   = `assets/${datum.meta.uri}/scene.gltf`
+    
+    let obj = await BABYLON.SceneLoader.ImportMeshAsync('', uri, '', scene)
+    let unit = new UnitModel(obj, {animationKeys: datum.meta.animationKeys})
+    
+    if (datum?.meta?.scale) unit.scaleTo( datum?.meta?.scale )
+    if (typeof datum?.x != 'undefined' && typeof datum?.y != 'undefined') unit.moveTo( datum?.x, datum?.y )
+    if (datum?.r) unit.rotateTo( datum?.r )
+    
+    unit.AnimateIdle()
+
+    // save the model 
+    units[unit.uuid] = unit
+    if (false) {
+      player = unit
+    }
+    // notify Comptroller
+    raiseEvent( canvas, events.canvas.unit_loaded, unit )
+  }
 
   return {
-    setup       : setup,
-    defaultScene: defaultScene, 
-    loadModel   : loadModel,
-
     canvas      : function() { return canvas },
     camera      : function() { return camera },
     scene       : function() { return scene  },
     units       : function() { return units  },
- 
-    fps         : anim.rates,
   }
 })()

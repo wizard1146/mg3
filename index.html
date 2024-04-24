@@ -10,7 +10,8 @@
  <script src="js/babylon.js"></script>
  <script src="js/babylonjs.loaders.min.js"></script>
  <!-- mg3 -->
- <script src="js/mg3.comptroller.js" class="mg-script"></script>
+ <script src="js/mg3.splash.js" class="mg-script"></script>
+ <script src="js/mg3.preloader.js" class="mg-script"></script>
  <style>
     html, body {
       overflow: hidden;
@@ -53,6 +54,17 @@ document.addEventListener("DOMContentLoaded", async function(event) {
       r.next()
     }
   }, 1000 )
+  
+  
+  sp = new mg3.splash.Splash({
+    lines     : ['smolprotecc','wazir'],
+    background: `assets/splash_001.png`,
+    fade: 1800,
+  })
+  g  = sp.start()
+  g.next()
+
+
   */
 
   let prod = false
@@ -67,8 +79,10 @@ document.addEventListener("DOMContentLoaded", async function(event) {
   rws.next()
   // Continue here
   }
+  
+  
 
-  mg3.comptroller.init()
+  mg3.preloader.init()
   
   /*
   setTimeout(() => {
