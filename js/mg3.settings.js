@@ -79,6 +79,8 @@ mg3.settings = (function() {
       sensibilityY  : 2000,
       // Follow Camera
       id_eye      : `follow-camera`,
+      // Light
+      hemisphericBrightness: 15,
     },
     hud: {
       // IDs

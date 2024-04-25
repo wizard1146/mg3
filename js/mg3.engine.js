@@ -60,6 +60,7 @@ mg3.engine = (function() {
       hero.deltaRotation = 0
       changed = true
     }
+    /* Update the animation spec */
     if (changed) {
       hero.a.key = hero.a.keys.walk
     } else {

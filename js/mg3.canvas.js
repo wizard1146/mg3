@@ -70,10 +70,10 @@ mg3.canvas = (function() {
     // camera.position = cam.sp
 
     // All Light options
-    let lightIntensity = options?.lightIntensity || 1
+    let lightIntensity = options?.lightIntensity || settings.canvas.hemisphericBrightness
 
     // Set the Light
-	let light = new BABYLON.HemisphericLight("Light", new BABYLON.Vector3(0, 4, 2), scene);
+	let light = new BABYLON.HemisphericLight("Light", new BABYLON.Vector3(0, 0, 11), scene);
 	light.diffuse  = new BABYLON.Color3(0.98, 0.97, 0.95);
 	light.specular = new BABYLON.Color3(0.98, 0.97, 0.95);
 	light.groundColor = new BABYLON.Color3(0, 0, 0);
