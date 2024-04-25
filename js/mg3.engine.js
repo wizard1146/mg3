@@ -160,7 +160,7 @@ mg3.engine = (function() {
     // generate map
     
     // generate player
-    let datum  = UNITS['sentinel'] // MODIFY
+    let datum  = UNITS['player'] // MODIFY
     let player = generateUnit( datum.key, datum, true )
     data.hero = player
 

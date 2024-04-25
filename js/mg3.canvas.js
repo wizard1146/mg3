@@ -252,6 +252,21 @@ mg3.canvas = (function() {
 
     if (hero) {
       // move the hero first
+      /*
+      let h = units[hero.id]
+      let c = h.anim.current
+      if (h.actual.position.x == hero.x && h.actual.position.z == hero.y) {
+        if (h.anim.current != h.anim.keys.idle) {
+          h.anim.current = h.anim.keys.idle
+          h.AnimateIdle()
+        }
+      } else {
+        if (h.anim.current != h.anim.keys.walk) {
+          h.anim.current = h.anim.keys.walk
+          h.AnimateWalk()
+        }
+      }*/
+      
       units[hero.id]?.moveTo( hero.x, hero.y )
     }
     if (rest && rest.length) {
@@ -282,7 +297,7 @@ mg3.canvas = (function() {
     if (datum.isPlayer) {
       let sc = settings.canvas
       eye = new BABYLON.ArcFollowCamera( sc.id_eye, sc.alpha, sc.beta, sc.radius, unit.actual, scene )
-      scene.setActiveCameraByID( sc.id_eye )
+      //scene.setActiveCameraByID( sc.id_eye )
     }
     // notify Comptroller
     raiseEvent( canvas, events.canvas.unit_loaded, unit )

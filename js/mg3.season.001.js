@@ -221,8 +221,6 @@ mg3.season_001 = (function(){
       walk : `003_run_weaponshield`,
     },
   })
-
- // HRM
   UNITS[`ethnic`] = new Unit({
     key: `ethnic`,
     uri: `ethnic_hero`,
@@ -230,6 +228,17 @@ mg3.season_001 = (function(){
     animationKeys: {
       idle : `001_idle_whip_samurai_f`,
       walk : `001_run_samurai_f`,
+    },
+  })
+
+  // Player
+  UNITS[`player`] = new Unit({
+    key: `player`,
+    uri: `ssp`,
+    scale: 1.22,
+    animationKeys: {
+      idle: `idle`,
+      walk: `walk`,
     },
   })
   
