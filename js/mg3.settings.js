@@ -58,6 +58,7 @@ mg3.settings = (function() {
       size_unit     : 24,
       speed_limiter : 20.4,
       speed_refactor: 55,
+      run_threshold : 73,
     },
     canvas: {
       // IDs

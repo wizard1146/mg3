@@ -260,21 +260,10 @@ mg3.canvas = (function() {
       // h.rotateTo( -hero.r ) // not sure why this does not work
       h.actual.rotation.y = -hero.r
       
-      /*
-      let h = units[hero.id]
-      let c = h.anim.current
-      if (h.actual.position.x == hero.x && h.actual.position.z == hero.y) {
-        if (h.anim.current != h.anim.keys.idle) {
-          h.anim.current = h.anim.keys.idle
-          h.AnimateIdle()
-        }
-      } else {
-        if (h.anim.current != h.anim.keys.walk) {
-          h.anim.current = h.anim.keys.walk
-          h.AnimateWalk()
-        }
-      }*/
-      
+      // animate
+      if (h.anim.current != hero.a.key) {
+        h.AnimateSpecific( hero.a.key )
+      }
     }
     if (rest && rest.length) {
       rest.forEach(unit => {

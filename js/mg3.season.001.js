@@ -8,6 +8,20 @@ mg3.season_001 = (function(){
   /* In-memory data */
   let LEVELS = {}, UNITS = {};
   
+  // Player
+  UNITS[`player`] = new Unit({
+    key: `player`,
+    uri: `ssp`,
+    scale: 1.22,
+    animationKeys: {
+      idle: `idle`,
+      walk: `walk`,
+      walk_back: `walk_back`,
+      run : `run`,
+      run_back: `run_back`
+    },
+  })
+  
   /* Level Data */
   // Level 1
   LEVELS[`001`] = new Level({
@@ -231,16 +245,6 @@ mg3.season_001 = (function(){
     },
   })
 
-  // Player
-  UNITS[`player`] = new Unit({
-    key: `player`,
-    uri: `ssp`,
-    scale: 1.22,
-    animationKeys: {
-      idle: `idle`,
-      walk: `walk`,
-    },
-  })
   
   return {
     LEVELS: LEVELS,

@@ -60,9 +60,27 @@ mg3.engine = (function() {
       hero.deltaRotation = 0
       changed = true
     }
+    // calculate the difference between face rotation & walk rotation
+    // console.log( hero.r.toFixed(2), ',',  hero.v.r.toFixed(2), ',', (hero.v.r - hero.r).toFixed(3) )
+    let inversion= false
+    let diff     = Math.abs(hero.r - hero.v.r)
+    if (diff > Math.PI/2) { 
+      inversion = true
+    }
+    
     /* Update the animation spec */
     if (changed) {
-      hero.a.key = hero.a.keys.walk
+      let k = hero.a.keys.walk
+      if (inversion) {
+        if (magnitude > settings.game.run_threshold) {
+          k = hero.a.keys.run_back
+        } else {
+          k = hero.a.keys.walk_back
+        }
+      } else {
+        if (magnitude > settings.game.run_threshold) k = hero.a.keys.run
+      }
+      hero.a.key = k
     } else {
       hero.a.key = hero.a.keys.idle
     }
