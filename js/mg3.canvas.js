@@ -157,7 +157,7 @@ mg3.canvas = (function() {
       this.actual.position = new BABYLON.Vector3( x, z, y )
     }
     rotateTo( r ) {
-      this.actual.rotation.y = -r
+      this.actual.rotation.y = r
     }
     scaleTo(scale) {
       this.meta.scale = scale
@@ -257,7 +257,8 @@ mg3.canvas = (function() {
       // move the hero first
       let h = units[hero.id]
       h.moveTo( hero.x, hero.y )
-      h.rotateTo( hero.r )
+      // h.rotateTo( -hero.r ) // not sure why this does not work
+      h.actual.rotation.y = -hero.r
       
       /*
       let h = units[hero.id]
