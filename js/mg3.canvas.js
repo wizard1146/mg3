@@ -156,6 +156,9 @@ mg3.canvas = (function() {
     moveTo(x, y, z = 0) {
       this.actual.position = new BABYLON.Vector3( x, z, y )
     }
+    rotateTo( r ) {
+      this.actual.rotation.y = -r
+    }
     scaleTo(scale) {
       this.meta.scale = scale
       this.actual.scaling.scaleInPlace( this.meta.scale )
@@ -252,6 +255,10 @@ mg3.canvas = (function() {
 
     if (hero) {
       // move the hero first
+      let h = units[hero.id]
+      h.moveTo( hero.x, hero.y )
+      h.rotateTo( hero.r )
+      
       /*
       let h = units[hero.id]
       let c = h.anim.current
@@ -267,7 +274,6 @@ mg3.canvas = (function() {
         }
       }*/
       
-      units[hero.id]?.moveTo( hero.x, hero.y )
     }
     if (rest && rest.length) {
       rest.forEach(unit => {
@@ -297,7 +303,7 @@ mg3.canvas = (function() {
     if (datum.isPlayer) {
       let sc = settings.canvas
       eye = new BABYLON.ArcFollowCamera( sc.id_eye, sc.alpha, sc.beta, sc.radius, unit.actual, scene )
-      //scene.setActiveCameraByID( sc.id_eye )
+      scene.setActiveCameraByID( sc.id_eye )
     }
     // notify Comptroller
     raiseEvent( canvas, events.canvas.unit_loaded, unit )

@@ -52,7 +52,7 @@ mg3.ux = (function() {
     let x = `${settings.hud.class_coords} absolute syne-mono text-right text-grey bottom-left`
     let y = `${settings.hud.class_coords} absolute syne-mono text-right text-grey`
     inject(`
-      <div id="${settings.hud.id_main}" class="absolute fullscreen center no-pointer">
+      <div id="${settings.hud.id_main}" class="absolute fullscreen center no-pointer no-select">
         <div id="${settings.hud.id_xyz}" class="absolute top-right">
           <div id="${settings.hud.id_xyz}-X"><div class="label">X</div><div class="value"></div></div>
           <div id="${settings.hud.id_xyz}-Y"><div class="label">Y</div><div class="value"></div></div>
