@@ -208,7 +208,6 @@ let joy = (function() {
     }
     touched(e) {
       if (e?.changedTouches[0]?.identifier !== this.toucher) return
-      this.toucher = null
       // Return to the origin
       if (this.auto_return) { 
         this.rx = this.ipx
@@ -217,7 +216,8 @@ let joy = (function() {
       // Render
       this.render()
       // Callback
-      this.callback(this.payload(), true)
+      if (this.toucher) this.callback(this.payload(), true)
+      this.toucher = null
     }
 
     /* Mouse functions */
@@ -250,8 +250,6 @@ let joy = (function() {
       this.callback(this.payload())
     }
     moused(e) {
-      this.mouser = false
-      if (e.target.id != this.id_canvas) return
       // Return to the origin
       if (this.auto_return) { 
         this.rx = this.ipx
@@ -260,7 +258,8 @@ let joy = (function() {
       // Render
       this.render()
       // Callback
-      this.callback(this.payload(), true)
+      if (this.mouser) this.callback(this.payload(), true)
+      this.mouser = false
     }
 
     getX()   { return this.x }
