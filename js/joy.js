@@ -250,8 +250,8 @@ let joy = (function() {
       this.callback(this.payload())
     }
     moused(e) {
-      if (e.target.id != this.id_canvas) return
       this.mouser = false
+      if (e.target.id != this.id_canvas) return
       // Return to the origin
       if (this.auto_return) { 
         this.rx = this.ipx
