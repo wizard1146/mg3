@@ -179,6 +179,7 @@ let joy = (function() {
 
     /* Touch functions */
     touch(e) {
+      e.preventDefault()
       this.pressed = 1
       this.toucher = e.targetTouches[0].identifier
     }
@@ -186,6 +187,7 @@ let joy = (function() {
       // Failure conditions
       // if (!this.toucher) return
       // if (!e.targetTouches[0].target == this.canvas) return
+      e.preventDefault()
       if (this.pressed === 1 && e.targetTouches[0].target === this.canvas) {
         this.rx = e.targetTouches[0].pageX
         this.ry = e.targetTouches[0].pageY
@@ -209,6 +211,7 @@ let joy = (function() {
       }
     }
     touched(e) {
+      e.preventDefault()
       if (e.changedTouches[0].identifier !== this.toucher) return
       this.pressed = 0
       // Return to the origin
