@@ -240,7 +240,7 @@ let Joy = (function() {
     mousing(e) {
       // Failure conditions
       if (!this.mouser) return
-      if (e.target.id != this.id_canvas) return
+      // if (e.target.id != this.id_canvas) return
       
       this.rx = e.pageX
       this.ry = e.pageY
