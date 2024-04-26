@@ -62,7 +62,7 @@ mg3.input = (function() {
   let joystickParse = function(datum, type) {
     let x  = parseInt(datum.x)
     let y  = parseInt(datum.y)
-    let r  = joystickRotation(x, y)
+    let r  = datum.rotation
     let len = Math.min( Math.sqrt(x*x + y*y), settings.input.js_maximum )
     let mx  = len * Math.cos(r + Math.PI/2) * -1
     let my  = len * Math.sin(r + Math.PI/2)
@@ -73,13 +73,6 @@ mg3.input = (function() {
       yp: datum.yPosition,
       wh: type,
     }
-  }
-
-  let joystickRotation = function(x, y) {
-    let r = Math.atan2(y, x) * 180 / Math.PI - 90
-    if (r > 0) r -= 360
-        r *= -1
-    return (r * Math.PI) / 180
   }
 
   return {

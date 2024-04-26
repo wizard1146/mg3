@@ -5,6 +5,8 @@
 let Joy = (function() {
   let defaults = {
     /* IDs */
+    rotation_invert  : true,
+    rotation_offset  : -90,
     /* Behaviours */
     auto_return      : true,
     /* Dimensions */
@@ -58,7 +60,9 @@ let Joy = (function() {
       this.iss = options?.internalStrokeColor ? options?.internalStrokeColor : defaults.internal_stroke
       this.ifi = options?.internalFillColor   ? options?.internalFillColor   : defaults.internal_fill
       // Behaviour
-      this.auto_return   = typeof options?.autoReturnToCenter != 'undefined' ? options?.autoReturnToCenter : defaults.auto_return
+      this.auto_return     = typeof options?.autoReturnToCenter != 'undefined' ? options?.autoReturnToCenter : defaults.auto_return
+      this.rotation_invert = typeof options?.rotation_invert    != 'undefined' ? options?.rotation_invert    : defaults.rotation_invert
+      this.rotation_offset = typeof options?.rotation_offset    != 'undefined' ? options?.rotation_offset    : defaults.rotation_offset
       // Computational
       this.toucher      = null
       this.mouser       = false
@@ -180,7 +184,7 @@ let Joy = (function() {
        }
        return outp
     }
-    getRotation( x, y, invert = false, offset = 0 ) {
+    getRotation( x, y, invert = this.rotation_invert, offset = this.rotation_offset ) {
       let r = Math.atan2( y, x ) * 180 / Math.PI + offset
       if (r > 0) r -= 360
       if (invert) r *= -1
