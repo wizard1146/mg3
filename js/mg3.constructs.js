@@ -16,6 +16,7 @@ mg3.constructs = (function() {
   class Level {
     constructor(options) {
       this.enemies = options?.enemies ? options?.enemies : []
+      this.startPosition = options?.startPosition ? options?.startPosition : {x: 0, y: 0}
     }
   }
   

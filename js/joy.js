@@ -2,7 +2,7 @@
   Adapted from https://github.com/bobboteck/JoyStick
  */
 
-let joy = (function() {
+let Joy = (function() {
   let defaults = {
     /* IDs */
     /* Behaviours */
@@ -23,7 +23,7 @@ let joy = (function() {
   }
   let canvasTemplate = `<canvas id="ID_CANVAS" height="CANVAS_HEIGHT" width="CANVAS_WIDTH"></canvas>`
 
-  class JoyStick {
+  class joystick {
     constructor(container, options, callback) {
       // Memory
       this.epx     = 0
@@ -146,12 +146,15 @@ let joy = (function() {
 
     /* Payload function */
     payload() {
+      let x = ((this.rx - this.ipx)/this.max *  100).toFixed()
+      let y = ((this.ry - this.ipy)/this.max * -100).toFixed()
       return {
         xPosition: this.rx,
         yPosition: this.ry,
-        x        : ((this.rx - this.ipx)/this.max *  100).toFixed(),
-        y        : ((this.ry - this.ipy)/this.max * -100).toFixed(),
+        x        : x,
+        y        : y,
         cardinalDirection: this.getCardinal(),
+        rotation : this.getRotation( x, y ),
       }
     }
     getCardinal() {
@@ -177,41 +180,44 @@ let joy = (function() {
        }
        return outp
     }
+    getRotation( x, y, invert = false, offset = 0 ) {
+      let r = Math.atan2( y, x ) * 180 / Math.PI + offset
+      if (r > 0) r -= 360
+      if (invert) r *= -1
+      return (r * Math.PI) / 180
+    }
 
     /* Touch functions */
     touch(e) {
-      this.pressed = 1
       this.toucher = e.targetTouches[0].identifier
     }
     touching(e) {
       // Failure conditions
-      // if (!this.toucher) return
-      // if (!e.targetTouches[0].target == this.canvas) return
-      if (this.pressed === 1 && e.targetTouches[0].target === this.canvas) {
-        this.rx = e.targetTouches[0].pageX
-        this.ry = e.targetTouches[0].pageY
-        // Handle offset
-        if (this.canvas.offsetParent.tagName.toUpperCase() === 'BODY') {
-          this.rx -= this.canvas.offsetLeft
-          this.ry -= this.canvas.offsetTop
-        } else {
-          this.rx -= this.canvas.offsetParent.offsetLeft
-          this.ry -= this.canvas.offsetParent.offsetTop
-        }
-        // Place limitations
-        if (this.rx < this.ir) { this.rx = this.max }
-        if (this.ry < this.ir) { this.ry = this.max }
-        if (this.rx + this.ir > this.canvas.width ) { this.rx = this.canvas.width  - this.max }
-        if (this.ry + this.ir > this.canvas.height) { this.ry = this.canvas.height - this.max }
-        // Render
-        this.render()
-        // Callback
-        this.callback(this.payload())
+      if (!this.toucher) return
+      if (!e.targetTouches[0].target == this.canvas) return
+
+      this.rx = e.targetTouches[0].pageX
+      this.ry = e.targetTouches[0].pageY
+      // Handle offset
+      if (this.canvas.offsetParent.tagName.toUpperCase() === 'BODY') {
+        this.rx -= this.canvas.offsetLeft
+        this.ry -= this.canvas.offsetTop
+      } else {
+        this.rx -= this.canvas.offsetParent.offsetLeft
+        this.ry -= this.canvas.offsetParent.offsetTop
       }
+      // Place limitations
+      if (this.rx < this.ir) { this.rx = this.max }
+      if (this.ry < this.ir) { this.ry = this.max }
+      if (this.rx + this.ir > this.canvas.width ) { this.rx = this.canvas.width  - this.max }
+      if (this.ry + this.ir > this.canvas.height) { this.ry = this.canvas.height - this.max }
+      // Render
+      this.render()
+      // Callback
+      this.callback(this.payload())
     }
     touched(e) {
       if (e.changedTouches[0].identifier !== this.toucher) return
-      this.pressed = 0
       // Return to the origin
       if (this.auto_return) { 
         this.rx = this.ipx
@@ -275,6 +281,6 @@ let joy = (function() {
   }
 
   return {
-    stick: JoyStick,
+    Stick: joystick,
   }
 })()

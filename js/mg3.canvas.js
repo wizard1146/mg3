@@ -292,7 +292,10 @@ mg3.canvas = (function() {
     units[unit.uuid] = unit
     if (datum.isPlayer) {
       let sc = settings.canvas
+      // Eye camera
       eye = new BABYLON.ArcFollowCamera( sc.id_eye, sc.alpha, sc.beta, sc.radius, unit.actual, scene )
+      eye.getProjectionMatrix().multiplyToRef( sc.eye_projection, eye.getProjectionMatrix() )
+
       scene.setActiveCameraByID( sc.id_eye )
     }
     // notify Comptroller

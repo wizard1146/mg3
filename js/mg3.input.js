@@ -50,8 +50,8 @@ mg3.input = (function() {
       <div id="${settings.input.id_js_dir}" class="absolute bottom-left"></div>
       <div id="${settings.input.id_js_aim}" class="absolute bottom-right"></div>
     `, submain)
-    jsDir = new joy.stick( settings.input.id_js_dir, settings.input.js_dir_options, joystickDir )
-    jsAim = new joy.stick( settings.input.id_js_aim, settings.input.js_aim_options, joystickAim )
+    jsDir = new Joy.Stick( settings.input.id_js_dir, settings.input.js_dir_options, joystickDir )
+    jsAim = new Joy.Stick( settings.input.id_js_aim, settings.input.js_aim_options, joystickAim )
   }
 
   let joystickDir = function(e) { joystickNotify( joystickParse( e, 'dir' ) ) }

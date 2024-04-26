@@ -180,6 +180,10 @@ mg3.engine = (function() {
     
     // generate player
     let datum  = UNITS['player'] // MODIFY
+console.log(levelData)
+    // grab Player's start position
+    if (levelData.startPosition) { console.log(1); datum.pos = levelData.startPosition }
+    // generate Player
     let player = generateUnit( datum.key, datum, true )
     data.hero = player
 

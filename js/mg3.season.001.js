@@ -25,6 +25,7 @@ mg3.season_001 = (function(){
   /* Level Data */
   // Level 1
   LEVELS[`001`] = new Level({
+    startPosition: {x: 0, y: -1},
     enemies: [
       {model: 'hiro', pos: {x: 0, y: 10, r: Math.PI}},
     ],

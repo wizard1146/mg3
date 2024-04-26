@@ -79,7 +79,8 @@ mg3.settings = (function() {
       sensibilityX  : 2000,
       sensibilityY  : 2000,
       // Follow Camera
-      id_eye      : `follow-camera`,
+      id_eye        : `follow-camera`,
+      eye_projection: BABYLON.Matrix.Translation( 0, -0.33, 0 ),
       // Light
       hemisphericBrightness: 15,
     },
