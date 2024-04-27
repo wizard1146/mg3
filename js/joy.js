@@ -221,7 +221,7 @@ let Joy = (function() {
     touching(e) {
       // Failure conditions
       if (!this.toucher) return
-      if (!e.targetTouches[0].target == this.canvas) return
+      // if (!e.targetTouches[0].target == this.canvas) return
 
       this.rx = e.targetTouches[0].pageX
       this.ry = e.targetTouches[0].pageY
